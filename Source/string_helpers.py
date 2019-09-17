@@ -176,50 +176,50 @@ ascii_images = {
    ╚═════╝  ╚═════╝  ╚═════╝ ╚═════╝ ╚═════╝    ╚═╝   ╚══════╝
                                                             """,
     "drink_menu_string": """
-                                                        ╔╝╔╝ 
+                                                        ╔╝╔╝
                                                         ║╔╝
   ██████╗  ██████╗        ██╗ ██╗    ██╗ TM     █╗████████████████╗
-  ██╔══██╗ ██╔══██╗       ██║ ██║    ██║       █╔╝████████████████║         
-  ██████╔╝ ██████╔╝ ████╗ ██║ ██║ █╗ ██║       █║  ██████████████╔╝     
-  ██╔══██╗ ██╔══██╗ ╚═══╝ ██║ ██║███╗██║       ╚█   ████████████╔╝   
+  ██╔══██╗ ██╔══██╗       ██║ ██║    ██║       █╔╝████████████████║
+  ██████╔╝ ██████╔╝ ████╗ ██║ ██║ █╗ ██║       █║  ██████████████╔╝
+  ██╔══██╗ ██╔══██╗ ╚═══╝ ██║ ██║███╗██║       ╚█   ████████████╔╝
   ██████╔╝ ██║  ██║       ██║ ╚███╔███╔╝         ╚██ ██████████╔╝
   ╚═════╝  ╚═╝  ╚═╝       ╚═╝  ╚══╝╚══╝           ╚██████████████╗
                                                    ╚═════════════╝
-  ╔═══════════════════════════════╗                     
-  ║ [1]  Add Drink Options        ║                    
-  ╚═══════════════════════════════╝                              
-    [2]  View Drink Options                                                                 
+  ╔═══════════════════════════════╗
+  ║ [1]  Add Drink Options        ║
+  ╚═══════════════════════════════╝
+    [2]  View Drink Options        
 
 
-    [3]  Add Team Members           
+    [3]  Add Team Members          
 
-    [4]  Update Favourite Drink       
+    [4]  Update Favourite Drink    
 
-    [5]  View Team Members           
+    [5]  View Team Members         
 
 
-    [6]  Take Order                 
+    [6]  Take Order                
 
-    [7]  Produce Favourite Order      
+    [7]  Produce Favourite Order   
 
     [8]  View Last Order           
 
-    [9]  Distribute Last Order        
+    [9]  Distribute Last Order     
 
-    [10] Clear Last Order            
+    [10] Clear Last Order          
 
 
-    [11] Change Team Details            
+    [11] Change Team Details       
 
-    [12] Help                       
+    [12] Help                      
 
-    [13] Logout                     
+    [13] Logout                    
 
-    [14] Exit                          
-                                       
-                                      
-                                      
-        """,
+    [14] Exit                      
+
+                                   
+
+""",
     "doughnut_menu_string": """
     
                                                                                                                                                                                ████████╗
@@ -336,19 +336,16 @@ Never gonna tell a lie and hurt you. Never gonna give you up. Never gonna let yo
 Never gonna make you cry.'" """}
 
 
-def print_line_break(max_length, top, bottom):
-    print(f"  {'╔' if top else ('╚' if bottom else '╠')}{'═' * max_length}{'╗' if top else ('╝' if bottom else '╣')}")
+def line_break(max_length, top, bottom):
+    return f"  {'╔' if top else ('╚' if bottom else '╠')}{'═' * max_length}{'╗' if top else ('╝' if bottom else '╣')}"
 
 
-def print_line_break_2(max_length_1, max_length_2, top, bottom):
-    print(f"  {'╔' if top else ('╚' if bottom else '╠')}{'═' * max_length_1}{'╦' if top else ('╩' if bottom else '╬')}"
-          + f"{'═' * max_length_2}{'╗' if top else ('╝' if bottom else '╣')}")
+def line_break_2(max_length_1, max_length_2, top, bottom):
+    return f"  {'╔' if top else ('╚' if bottom else '╠')}{'═' * max_length_1}{'╦' if top else ('╩' if bottom else '╬')}{'═' * max_length_2}{'╗' if top else ('╝' if bottom else '╣')}"
 
 
-def print_line_break_4(max_length_1, max_length_2, max_length_3, max_length_4, top, bottom):
-    print(f"  {'╔' if top else ('╚' if bottom else '╠')}{'═' * max_length_1}{'╦' if top else ('╩' if bottom else '╬')}"
-          + f"{'═' * max_length_2}{'╦' if top else ('╩' if bottom else '╬')}{'═' * max_length_3}" +
-          f"{'╦' if top else ('╩' if bottom else '╬')}{'═' * max_length_4}{'╗' if top else ('╝' if bottom else '╣')}")
+def line_break_4(max_length_1, max_length_2, max_length_3, max_length_4, top, bottom):
+    return f"  {'╔' if top else ('╚' if bottom else '╠')}{'═' * max_length_1}{'╦' if top else ('╩' if bottom else '╬')}{'═' * max_length_2}{'╦' if top else ('╩' if bottom else '╬')}{'═' * max_length_3}{'╦' if top else ('╩' if bottom else '╬')}{'═' * max_length_4}{'╗' if top else ('╝' if bottom else '╣')}"
 
 
 def update_menu_string(menu_string_original, option, up):
@@ -373,9 +370,9 @@ def update_menu_string(menu_string_original, option, up):
     menu_string_lines[(10 if up else 12) + jump_before + 2 * option] = "  ╔═══════════════════════════════╗" if not up else "  ╚═══════════════════════════════╝"
     menu_string_lines[(10 if up else 12) + jump_before + 2 * ((option - 1) if up else (option + 1))] = "  ╔═══════════════════════════════╗" if up else "  ╚═══════════════════════════════╝"
     if option == 13 and not up:
-        menu_string_lines[42] = "  ║ [14] Bonus                    ║  "
+        menu_string_lines[42] = "  ║ [15] Bonus                    ║"
     elif option == 14 and up:
-        menu_string_lines[42] = "                                      "
+        menu_string_lines[42] = "                                   "
 
     menu_string = ""
     for line in menu_string_lines:

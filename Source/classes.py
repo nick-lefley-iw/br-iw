@@ -14,9 +14,15 @@ class Teams:
         for team in self.teams.values():
             if name == team.name:
                 return team.password
+        raise ValueError("Team Does Not Exist")
 
     def get_team(self, team_id):
-        return self.teams[team_id]
+        if team_id in self.teams.keys():
+            return self.teams[team_id]
+        raise ValueError("Team Does Not Exist")
+
+    def clear_teams(self):
+        self.teams = {}
 
 
 class Drinks:
@@ -35,7 +41,9 @@ class Drinks:
         return self.drinks.keys()
 
     def get_drink(self, drink_id):
-        return self.drinks[drink_id]
+        if drink_id in self.drinks.keys():
+            return self.drinks[drink_id]
+        raise ValueError("Drink Does Not Exist")
 
     def clear_drinks(self):
         self.drinks = {}
@@ -57,7 +65,9 @@ class TeamMembers:
         return self.team_members.keys()
 
     def get_team_member(self, team_member_id):
-        return self.team_members[team_member_id]
+        if team_member_id in self.team_members.keys():
+            return self.team_members[team_member_id]
+        raise ValueError("Team Member Does Not Exist")
 
     def clear_team_members(self):
         self.team_members = {}
@@ -75,8 +85,8 @@ class Round:
 
     def add_drink(self, drink_id, team_member_id):
         if drink_id in self.drinks.keys():
-            self.drinks[drink_id] += [team_member_id]
-
+            if team_member_id not in self.drinks[drink_id]:
+                self.drinks[drink_id] += [team_member_id]
         else:
             self.drinks[drink_id] = [team_member_id]
 

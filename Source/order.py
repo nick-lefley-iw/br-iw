@@ -4,8 +4,8 @@ import curses
 import getpass
 import random
 import sys
-from source.classes import *
-from source.string_helpers import *
+from Source.classes import *
+from Source.string_helpers import *
 
 any_orders = False
 team_name = ""
@@ -51,27 +51,41 @@ def change_password(correct_try):
     else:
         new_password = getpass.getpass("  New Password: ")
         old_id = None
+        lines_to_keep = []
 
-        with open("../data/teams.txt", "r+") as order_records:
-            lines_to_keep = []
-            for line in order_records.readlines():
-                data = line.split("|")
-                if len(data) > 2 and data[1] != team_name:
-                    lines_to_keep.append(line)
-                else:
-                    old_id = int(data[0])
+        try:
+            with open("data/teams.txt", "r") as order_records:
+                for line in order_records.readlines():
+                    data = line.split("|")
+                    if len(data) > 2 and data[1] != team_name:
+                        lines_to_keep.append(line)
+                    else:
+                        old_id = int(data[0])
+        except FileNotFoundError as err:
+            print("  Unable To Open Teams File: " + str(err))
+            return
 
-            order_records.seek(0)
-            for line in lines_to_keep:
-                order_records.write(line)
-            order_records.write(f"{old_id}|{team_name}|{new_password}|\n")
+        try:
+            open('data/teams.txt', 'w').close()
+        except FileNotFoundError as err:
+            print("  Unable To Open Teams File: " + str(err))
+            return
+
+        try:
+            with open("data/teams.txt", "w") as order_records:
+                for line in lines_to_keep:
+                    order_records.write(line)
+                order_records.write(f"{old_id}|{team_name}|{new_password}|\n")
+        except FileNotFoundError as err:
+            print("  Unable To Open Teams File: " + str(err))
+            return
 
         teams.get_team(old_id).update_password(new_password)
 
 
 def read_team_data():
     try:
-        with open("../data/teams.txt", "r") as team_records:
+        with open("data/teams.txt", "r") as team_records:
             for line in team_records:
                 data = line.split("|")
                 teams.add_team(Team(data[1].strip(), data[2].strip(), int(data[0].strip())))
@@ -85,7 +99,7 @@ def read_data():
     global largest_drink_id
 
     try:
-        with open(f"../data/{item_type}s.txt", "r") as drink_records:
+        with open(f"data/{item_type}s.txt", "r") as drink_records:
             for line in drink_records:
                 data = line.split("|")
                 largest_drink_id = max(largest_drink_id, int(data[0].strip()))
@@ -95,7 +109,7 @@ def read_data():
         print(f"  Unable To Open {item_type.capitalize()}s File: " + str(err))
 
     try:
-        with open(f"../data/people_{item_type}.txt", "r") as people_records:
+        with open(f"data/people_{item_type}.txt", "r") as people_records:
             for line in people_records:
                 data = line.split("|")
                 largest_team_member_id = max(largest_team_member_id, int(data[0].strip()))
@@ -106,7 +120,7 @@ def read_data():
         print("  Unable To Open Team Member File: " + str(err))
 
     try:
-        with open(f"../data/{item_type}_order.txt", "r") as order_records:
+        with open(f"data/{item_type}_order.txt", "r") as order_records:
             lines = order_records.readlines()
             if len(lines) > 0 and len(lines[0].split("\n")) > 0 and lines[0].split("\n")[0].strip():
                 any_orders = True
@@ -127,7 +141,7 @@ def log_items(is_people):
     if is_people:
         if len(drinks.get_ids()) == 0:
             print(f"  You Must Add {item_type.capitalize()} Options Before You Can Add Team Members.")
-            input("\n  Press Any Key To Return To Menu ")
+            input("\n  Press Enter To Return To Menu ")
             return
         display_drinks()
 
@@ -162,7 +176,7 @@ def log_items(is_people):
                         largest_team_member_id = max(largest_team_member_id, team_member.id)
                         team_members.add_team_member(team_member)
                         try:
-                            with open(f"../data/people_{item_type}.txt", "a") as people_records:
+                            with open(f"data/people_{item_type}.txt", "a") as people_records:
                                 people_records.write(
                                     f"{team_member.id}|{item_name.lower()}|{preference}|{team_name}|\n")
                         except FileNotFoundError as err:
@@ -173,7 +187,7 @@ def log_items(is_people):
                 largest_drink_id = max(largest_drink_id, drink.id)
                 drinks.add_drink(drink)
                 try:
-                    with open(f"../data/{item_type}s.txt", "a") as drink_records:
+                    with open(f"data/{item_type}s.txt", "a") as drink_records:
                         drink_records.write(f"{drink.id}|{item_name.lower()}|{team_name}|\n")
                 except FileNotFoundError as err:
                     print(f"  Unable To Open {item_type.capitalize()}s File: " + str(err))
@@ -195,13 +209,11 @@ def display_people():
         max_length_preference_key = max(max_length_preference_key, len(str(item.preference)) + 4)
         max_length_preference = max(max_length_preference, len(item.get_preference()) + 4)
 
-    print_line_break_4(max_length_person_key, max_length_person, max_length_preference_key, max_length_preference, True,
-                       False)
+    print(line_break_4(max_length_person_key, max_length_person, max_length_preference_key, max_length_preference, True, False))
     print(f"  ║  Id{' ' * (max_length_person_key - 4)}║  Team Members{' ' * (max_length_person - 14)}║" +
           f"  {item_type.capitalize()} Id{' ' * (max_length_preference_key - (10 if item_type == 'drink' else 13))}║  Favourite {item_type.capitalize()}{' ' * (max_length_preference - (17 if item_type == 'drink' else 20))}║")
 
-    print_line_break_4(max_length_person_key, max_length_person, max_length_preference_key, max_length_preference,
-                       False, False)
+    print(line_break_4(max_length_person_key, max_length_person, max_length_preference_key, max_length_preference, False, False))
     for key, person in team_members.team_members.items():
         name = person.get_name()
         preference = person.preference
@@ -211,15 +223,14 @@ def display_people():
     if len(team_members.get_ids()) == 0:
         print(
             f"  ║{' ' * max_length_person_key}║{' ' * max_length_person}║{' ' * max_length_preference_key}║{' ' * max_length_preference}║")
-    print_line_break_4(max_length_person_key, max_length_person, max_length_preference_key, max_length_preference,
-                       False, True)
+    print(line_break_4(max_length_person_key, max_length_person, max_length_preference_key, max_length_preference, False, True))
     print("")
 
 
 def update_preference():
     if len(team_members.get_ids()) == 0 or len(drinks.get_ids()) == 0:
         print(f"  You Must Add Team Members And {item_type.capitalize()} Options Before You Can Update Favourites.")
-        input("\n  Press Any Key To Return To Menu ")
+        input("\n  Press Enter To Return To Menu ")
         return
 
     display_people()
@@ -265,7 +276,7 @@ def update_preference():
     changes_made = False
     new_lines = []
     try:
-        with open(f"../data/people_{item_type}.txt", "r+") as people_records:
+        with open(f"data/people_{item_type}.txt", "r") as people_records:
             lines = people_records.readlines()
             for line in lines:
                 if line.startswith(f"{person}|"):
@@ -283,7 +294,7 @@ def update_preference():
         print("  Preference Updated.")
     else:
         print("  Error: Person Could Not Be Found.")
-    input("\n  Press Any Key To Return To Menu ")
+    input("\n  Press Enter To Return To Menu ")
 
 
 def display_drinks():
@@ -293,29 +304,39 @@ def display_drinks():
         max_length_key = max(max_length_key, len(str(key)) + 4)
         max_length = max(max_length, len(item.name) + 4)
 
-    print_line_break_2(max_length_key, max_length, True, False)
+    print(line_break_2(max_length_key, max_length, True, False))
     print(f"  ║  Id{' ' * (max_length_key - 4)}║  {item_type.capitalize()} Options{' ' * (max_length - (15 if item_type == 'drink' else 18))}║")
 
-    print_line_break_2(max_length_key, max_length, False, False)
+    print(line_break_2(max_length_key, max_length, False, False))
     for key, item in drinks.drinks.items():
         print(
             f"  ║  {key}{' ' * (max_length_key - len(str(key)) - 2)}║  {item.get_name()}{' ' * (max_length - len(item.get_name()) - 2)}║")
     if len(drinks.get_ids()) == 0:
         print(f"  ║{' ' * max_length_key}║{' ' * max_length}║")
-    print_line_break_2(max_length_key, max_length, False, True)
+    print(line_break_2(max_length_key, max_length, False, True))
     print("")
 
 
 def update_order_records():
+    lines_to_keep = []
     try:
-        with open(f"../data/{item_type}_order.txt", "r+") as order_records:
-            lines_to_keep = []
+        with open(f"data/{item_type}_order.txt", "r") as order_records:
             for line in order_records.readlines():
                 data = line.split("|")
                 if len(data) > 2 and data[-2] != team_name:
                     lines_to_keep.append(line)
+    except FileNotFoundError as err:
+        print("  Unable To Open Order File: " + str(err))
+        return
 
-            order_records.seek(0)
+    try:
+        open(f'data/{item_type}_order.txt', 'w').close()
+    except FileNotFoundError as err:
+        print("  Unable To Open Order File: " + str(err))
+        return
+
+    try:
+        with open(f"data/{item_type}_order.txt", "w") as order_records:
             for line in lines_to_keep:
                 order_records.write(line)
 
@@ -324,8 +345,8 @@ def update_order_records():
                 for person in people:
                     order_records.write(f"{person}|")
                 order_records.write(f"{team_name}|\n")
-    except FileNotFoundError:
-        print("  Cannot open file for reading\n")
+    except FileNotFoundError as err:
+        print("  Unable To Open Order File: " + str(err))
         return
 
 
@@ -337,7 +358,7 @@ def show_order():
 
 
 def distribute_order():
-    input(f"  Press Any Key To Distribute {item_type.capitalize()}s ")
+    input(f"  Press Enter To Distribute {item_type.capitalize()}s ")
     os.system("clear")
     print(ascii_images["distribute_order"])
     distribute()
@@ -346,7 +367,7 @@ def distribute_order():
 def select_brewer():
     if len(team_members.get_ids()) == 0 or len(drinks.get_ids()) == 0:
         print(f"  You Must Add Team Members And {item_type.capitalize()} Options Before You Can Take An Order.")
-        input("\n  Press Any Key To Return To Menu ")
+        input("\n  Press Enter To Return To Menu ")
         return False
 
     display_people()
@@ -407,7 +428,7 @@ def take_order():
 
     show_order()
     if all_empty:
-        input("  Press Any Key To Return To Menu ")
+        input("  Press Enter To Return To Menu ")
     else:
         distribute_order()
 
@@ -434,11 +455,11 @@ def display_order():
     max_length = max(max_length, 22 + len(drinks_round.get_brewer()))
 
     print("")
-    print_line_break(max_length, True, False)
+    print(line_break(max_length, True, False))
     print(
         f"  ║  {drinks_round.get_brewer()} Will Need To {'Make' if waiter == 'brewer' else 'Buy'}{' ' * (max_length - (20 if waiter == 'brewer' else 19) - len(drinks_round.get_brewer()))}║")
 
-    print_line_break(max_length, False, False)
+    print(line_break(max_length, False, False))
     for item, data in drinks_round.drinks.items():
         amount = len(data)
         string_length = 3 + len(str(amount)) + len(drinks.get_drink(item).name + ("s" if amount != 1 else ""))
@@ -446,7 +467,7 @@ def display_order():
             f"  ║  {str(amount)} {drinks.get_drink(item).get_name()}{('s' if amount != 1 else '')}{' ' * (max_length - string_length)}║")
     if len(drinks_round.get_drinks_in_order()) == 0:
         print(f"  ║{' ' * max_length}║")
-    print_line_break(max_length, False, True)
+    print(line_break(max_length, False, True))
     print("")
 
 
@@ -460,20 +481,20 @@ def distribute():
                 max_length = max(max_length, len(team_members.get_team_member(person).name) + 4)
             print("")
 
-            print_line_break(max_length, True, False)
+            print(line_break(max_length, True, False))
             print(
                 f"  ║  {drinks.get_drink(item).get_name()}{' ' * (max_length - len(drinks.get_drink(item).name) - 2)}║")
-            print_line_break(max_length, False, False)
+            print(line_break(max_length, False, False))
             for person in people:
                 print(
                     f"  ║  {team_members.get_team_member(person).get_name()}{' ' * (max_length - len(team_members.get_team_member(person).name) - 2)}║")
-            print_line_break(max_length, False, True)
-    input("\n  Press Any Key To Return To Menu ")
+            print(line_break(max_length, False, True))
+    input("\n  Press Enter To Return To Menu ")
 
 
 def no_order():
     print("  No Orders Are Currently Stored.")
-    input("\n  Press Any Key To Return To Menu ")
+    input("\n  Press Enter To Return To Menu ")
 
 
 def show_menu():
@@ -529,7 +550,7 @@ def show_menu():
         elif option == 1:
             print(ascii_images[f"view_{item_type}_options"])
             display_drinks()
-            input("  Press Any Key To Return To Menu ")
+            input("  Press Enter To Return To Menu ")
         # add team members
         elif option == 2:
             print(ascii_images["add_team_members"])
@@ -542,7 +563,7 @@ def show_menu():
         elif option == 4:
             print(ascii_images["view_team_members"])
             display_people()
-            input("  Press Any Key To Return To Menu ")
+            input("  Press Enter To Return To Menu ")
         # take order
         elif option == 5:
             print(ascii_images[f"select_{waiter}"])
@@ -563,7 +584,7 @@ def show_menu():
             print(ascii_images["view_last_order"])
             if any_orders:
                 display_order()
-                input("  Press Any Key To Return To Menu ")
+                input("  Press Enter To Return To Menu ")
             else:
                 no_order()
         # distribute last order
@@ -584,12 +605,12 @@ def show_menu():
                 if finish_check.upper() == "Y":
                     any_orders = False
                     try:
-                        open(f'../data/{item_type}_order.txt', 'w').close()
+                        open(f'data/{item_type}_order.txt', 'w').close()
                     except FileNotFoundError as err:
                         print("  Unable To Open Order File: " + str(err))
                     else:
                         print("  The Stored Last Order Has Been Cleared.")
-                    input("\n  Press Any Key To Return To Menu ")
+                    input("\n  Press Enter To Return To Menu ")
             else:
                 no_order()
         # change team details
@@ -599,7 +620,7 @@ def show_menu():
         elif option == 11:
             print(ascii_images["help"])
             print(f"  BR-IW Has Been Designed To Help Record Your {item_type.capitalize()}s Rounds.\n  If You Have Any Issues, Please Consult The User Manual.")
-            input("  Press Any Key To Return To Menu ")
+            input("  Press Enter To Return To Menu ")
         # logout
         elif option == 12:
             print(ascii_images["logout"])
@@ -629,13 +650,21 @@ def show_menu():
         else:
             print(ascii_images["rick"])
             os.system(ascii_images["lyrics"])
-            input("Press Any Key To Return To Menu ")
+            input("Press Enter To Return To Menu ")
 
 
-arguments = sys.argv
-if len(arguments) == 2 and arguments[1] == "mib":
-    item_type = "doughnut"
-    waiter = "buyer"
-read_team_data()
-login(False)
-show_menu()
+def run_app():
+    global item_type
+    global waiter
+
+    arguments = sys.argv
+    if len(arguments) == 2 and arguments[1] == "mib":
+        item_type = "doughnut"
+        waiter = "buyer"
+    read_team_data()
+    login(False)
+    show_menu()
+
+
+if __name__ == "__main__":
+    run_app()
