@@ -76,7 +76,6 @@ class StringHelperTests(unittest.TestCase):
 
                                    
 
-
 """)
 
     def test_update_menu_string_down_to_3(self):
@@ -123,8 +122,6 @@ class StringHelperTests(unittest.TestCase):
     [14] Exit                      
 
                                    
-
-
 
 """)
 
@@ -174,9 +171,6 @@ class StringHelperTests(unittest.TestCase):
 
                                    
 
-
-
-
 """)
 
     def test_update_menu_string_up_to_1(self):
@@ -224,8 +218,6 @@ class StringHelperTests(unittest.TestCase):
     [14] Exit                      
 
                                    
-
-
 
 """)
 
@@ -318,7 +310,6 @@ class StringHelperTests(unittest.TestCase):
   ╔═══════════════════════════════╗
   ║ [15] Bonus                    ║
   ╚═══════════════════════════════╝
-
 """)
 
     def test_update_menu_string_up_to_14(self):
@@ -409,7 +400,6 @@ class StringHelperTests(unittest.TestCase):
   ║ [14] Exit                     ║
   ╚═══════════════════════════════╝
                                    
-
 
 """)
 

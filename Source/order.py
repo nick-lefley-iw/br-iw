@@ -4,8 +4,8 @@ import curses
 import getpass
 import random
 import sys
-from Source.classes import *
 from Source.string_helpers import *
+from Source.persistence_management import *
 
 any_orders = False
 team_name = ""
@@ -17,6 +17,9 @@ waiter = "brewer"
 
 def login(already_got_team):
     global team_name
+    global any_orders
+    global largest_team_member_id
+    global largest_drink_id
 
     os.system("clear")
     print(ascii_images["login"])
@@ -35,7 +38,21 @@ def login(already_got_team):
     if password != teams.get_password(team_name):
         login(True)
     else:
-        read_data()
+        any_orders, largest_team_member_id, largest_drink_id = read_data(item_type, team_name, any_orders, largest_team_member_id, largest_drink_id)
+
+
+def logout():
+    finish_check = input(f"  Are You Sure You Want To Logout? (Y/N) ").strip()
+    while finish_check.upper() != "Y" and finish_check.upper() != "N":
+        finish_check = input(f"  Sorry, I Did Not Understand That. Are You Sure You Want To Logout? (Y/N) ").strip()
+    if finish_check.upper() == "Y":
+        global team_name
+        os.system("clear")
+        team_name = ""
+        drinks.clear_drinks()
+        team_members.clear_team_members()
+        drinks_round.clear_order()
+        login(False)
 
 
 def change_password(correct_try):
@@ -50,88 +67,9 @@ def change_password(correct_try):
         change_password(False)
     else:
         new_password = getpass.getpass("  New Password: ")
-        old_id = None
-        lines_to_keep = []
-
-        try:
-            with open("data/teams.txt", "r") as order_records:
-                for line in order_records.readlines():
-                    data = line.split("|")
-                    if len(data) > 2 and data[1] != team_name:
-                        lines_to_keep.append(line)
-                    else:
-                        old_id = int(data[0])
-        except FileNotFoundError as err:
-            print("  Unable To Open Teams File: " + str(err))
-            return
-
-        try:
-            open('data/teams.txt', 'w').close()
-        except FileNotFoundError as err:
-            print("  Unable To Open Teams File: " + str(err))
-            return
-
-        try:
-            with open("data/teams.txt", "w") as order_records:
-                for line in lines_to_keep:
-                    order_records.write(line)
-                order_records.write(f"{old_id}|{team_name}|{new_password}|\n")
-        except FileNotFoundError as err:
-            print("  Unable To Open Teams File: " + str(err))
-            return
-
-        teams.get_team(old_id).update_password(new_password)
-
-
-def read_team_data():
-    try:
-        with open("data/teams.txt", "r") as team_records:
-            for line in team_records:
-                data = line.split("|")
-                teams.add_team(Team(data[1].strip(), data[2].strip(), int(data[0].strip())))
-    except FileNotFoundError as err:
-        print("  Unable To Open Teams File: " + str(err))
-
-
-def read_data():
-    global any_orders
-    global largest_team_member_id
-    global largest_drink_id
-
-    try:
-        with open(f"data/{item_type}s.txt", "r") as drink_records:
-            for line in drink_records:
-                data = line.split("|")
-                largest_drink_id = max(largest_drink_id, int(data[0].strip()))
-                if data[2].strip() == team_name:
-                    drinks.add_drink(Drink(data[1].strip(), largest_drink_id, int(data[0].strip())))
-    except FileNotFoundError as err:
-        print(f"  Unable To Open {item_type.capitalize()}s File: " + str(err))
-
-    try:
-        with open(f"data/people_{item_type}.txt", "r") as people_records:
-            for line in people_records:
-                data = line.split("|")
-                largest_team_member_id = max(largest_team_member_id, int(data[0].strip()))
-                if data[3].strip() == team_name:
-                    team_members.add_team_member(
-                        TeamMember(data[1].strip(), int(data[2].strip()), largest_team_member_id, int(data[0].strip())))
-    except FileNotFoundError as err:
-        print("  Unable To Open Team Member File: " + str(err))
-
-    try:
-        with open(f"data/{item_type}_order.txt", "r") as order_records:
-            lines = order_records.readlines()
-            if len(lines) > 0 and len(lines[0].split("\n")) > 0 and lines[0].split("\n")[0].strip():
-                any_orders = True
-                for line in lines:
-                    data = line.split("|")
-                    if len(data) > 2 and data[-2].strip() == team_name:
-                        for person in data[2:-2]:
-                            drinks_round.add_drink(int(data[0].strip()), int(person.strip()))
-                        drinks_round.update_brewer(int(data[1].strip()))
-    except FileNotFoundError as err:
-        print("  Unable To Open Order File: " + str(err))
+        old_id = update_team_password(team_name, new_password)
+        if old_id:
+            teams.get_team(old_id).update_password(new_password)
 
 
 def log_items(is_people):
@@ -175,22 +113,13 @@ def log_items(is_people):
                         team_member = TeamMember(item_name.lower(), int(preference), largest_team_member_id)
                         largest_team_member_id = max(largest_team_member_id, team_member.id)
                         team_members.add_team_member(team_member)
-                        try:
-                            with open(f"data/people_{item_type}.txt", "a") as people_records:
-                                people_records.write(
-                                    f"{team_member.id}|{item_name.lower()}|{preference}|{team_name}|\n")
-                        except FileNotFoundError as err:
-                            print("  Unable To Open Team Member File: " + str(err))
+                        append_team_member(item_type, team_member, item_name, preference, team_name)
                         break
             else:
                 drink = Drink(item_name.lower(), largest_drink_id)
                 largest_drink_id = max(largest_drink_id, drink.id)
                 drinks.add_drink(drink)
-                try:
-                    with open(f"data/{item_type}s.txt", "a") as drink_records:
-                        drink_records.write(f"{drink.id}|{item_name.lower()}|{team_name}|\n")
-                except FileNotFoundError as err:
-                    print(f"  Unable To Open {item_type.capitalize()}s File: " + str(err))
+                append_drink(item_type, drink, item_name, team_name)
 
         finish_check = input(f"  {add_text}? (Y/N) ").strip()
         while finish_check.upper() != "Y" and finish_check.upper() != "N":
@@ -244,23 +173,7 @@ def update_preference():
             break
 
     team_members.get_team_member(int(person)).update_preference(int(drink))
-    changes_made = False
-    new_lines = []
-    try:
-        with open(f"data/people_{item_type}.txt", "r") as people_records:
-            lines = people_records.readlines()
-            for line in lines:
-                if line.startswith(f"{person}|"):
-                    new_lines.append(f"{person}|{person_name}|{drink}|{team_name}|\n")
-                    changes_made = True
-                else:
-                    new_lines.append(line)
-            people_records.seek(0)
-            for line in new_lines:
-                people_records.write(line)
-    except FileNotFoundError as err:
-        print("  Unable To Open Team Member File: " + str(err))
-
+    changes_made = update_team_member_preference(item_type, person, person_name, drink, team_name)
     if changes_made:
         print("  Preference Updated.")
     else:
@@ -268,41 +181,8 @@ def update_preference():
     input("\n  Press Enter To Return To Menu ")
 
 
-def update_order_records():
-    lines_to_keep = []
-    try:
-        with open(f"data/{item_type}_order.txt", "r") as order_records:
-            for line in order_records.readlines():
-                data = line.split("|")
-                if len(data) > 2 and data[-2] != team_name:
-                    lines_to_keep.append(line)
-    except FileNotFoundError as err:
-        print("  Unable To Open Order File: " + str(err))
-        return
-
-    try:
-        open(f'data/{item_type}_order.txt', 'w').close()
-    except FileNotFoundError as err:
-        print("  Unable To Open Order File: " + str(err))
-        return
-
-    try:
-        with open(f"data/{item_type}_order.txt", "w") as order_records:
-            for line in lines_to_keep:
-                order_records.write(line)
-
-            for drink, people in drinks_round.drinks.items():
-                order_records.write(f"{drink}|{drinks_round.brewer}|")
-                for person in people:
-                    order_records.write(f"{person}|")
-                order_records.write(f"{team_name}|\n")
-    except FileNotFoundError as err:
-        print("  Unable To Open Order File: " + str(err))
-        return
-
-
 def show_order():
-    update_order_records()
+    update_order_records(item_type, team_name)
     os.system("clear")
     print(ascii_images["view_order"])
     print(display_order(drinks_round, drinks, waiter))
@@ -401,8 +281,27 @@ def no_order():
     input("\n  Press Enter To Return To Menu ")
 
 
+def clear_last_order():
+    global any_orders
+
+    if any_orders:
+        finish_check = input(f"  Are You Sure You Want To Clear The Last Order? (Y/N) ").strip()
+        while finish_check.upper() != "Y" and finish_check.upper() != "N":
+            finish_check = input(
+                f"  Sorry, I Did Not Understand That. Are You Sure You Want To Clear The Last Order? (Y/N) ").strip()
+        if finish_check.upper() == "Y":
+            any_orders = False
+            clear_order_records(item_type)
+            input("\n  Press Enter To Return To Menu ")
+    else:
+        no_order()
+
+
 def show_menu():
     global any_orders
+
+    option = 0
+    menu_string = ascii_images[item_type + "_menu_string"]
 
     while True:
         os.system("clear")
@@ -410,11 +309,9 @@ def show_menu():
         curses.noecho()
         curses.cbreak()
         screen.keypad(True)
-
-        menu_string = ascii_images[item_type + "_menu_string"]
         screen.addstr(menu_string)
         curses.curs_set(0)
-        option = 0
+
         try:
             while True:
                 char = screen.getch()
@@ -502,22 +399,7 @@ def show_menu():
         # clear last order
         elif option == 9:
             print(ascii_images["clear_last_order"])
-            if any_orders:
-                finish_check = input(f"  Are You Sure You Want To Clear The Last Order? (Y/N) ").strip()
-                while finish_check.upper() != "Y" and finish_check.upper() != "N":
-                    finish_check = input(
-                        f"  Sorry, I Did Not Understand That. Are You Sure You Want To Clear The Last Order? (Y/N) ").strip()
-                if finish_check.upper() == "Y":
-                    any_orders = False
-                    try:
-                        open(f'data/{item_type}_order.txt', 'w').close()
-                    except FileNotFoundError as err:
-                        print("  Unable To Open Order File: " + str(err))
-                    else:
-                        print("  The Stored Last Order Has Been Cleared.")
-                    input("\n  Press Enter To Return To Menu ")
-            else:
-                no_order()
+            clear_last_order()
         # change team details
         elif option == 10:
             change_password(True)
@@ -529,33 +411,27 @@ def show_menu():
         # logout
         elif option == 12:
             print(ascii_images["logout"])
-            finish_check = input(f"  Are You Sure You Want To Logout? (Y/N) ").strip()
-            while finish_check.upper() != "Y" and finish_check.upper() != "N":
-                finish_check = input(f"  Sorry, I Did Not Understand That. Are You Sure You Want To Logout? (Y/N) ").strip()
-            if finish_check.upper() == "Y":
-                global team_name
-                os.system("clear")
-                team_name = ""
-                drinks.clear_drinks()
-                team_members.clear_team_members()
-                drinks_round.clear_order()
-                login(False)
+            logout()
         # exit
         elif option == 13:
             print(ascii_images["exit"])
-            finish_check = input(f"  Are You Sure You Want To Exit? (Y/N) ").strip()
-            while finish_check.upper() != "Y" and finish_check.upper() != "N":
-                finish_check = input(f"  Sorry, I Did Not Understand That. Are You Sure You Want To Exit? (Y/N) ").strip()
-            if finish_check.upper() == "Y":
-                print(ascii_images["goodbye"])
-                time.sleep(1)
-                os.system("clear")
-                exit()
+            end_app()
         # bonus
         else:
             print(ascii_images["rick"])
             os.system(ascii_images["lyrics"])
             input("Press Enter To Return To Menu ")
+
+
+def end_app():
+    finish_check = input(f"  Are You Sure You Want To Exit? (Y/N) ").strip()
+    while finish_check.upper() != "Y" and finish_check.upper() != "N":
+        finish_check = input(f"  Sorry, I Did Not Understand That. Are You Sure You Want To Exit? (Y/N) ").strip()
+    if finish_check.upper() == "Y":
+        print(ascii_images["goodbye"])
+        time.sleep(1)
+        os.system("clear")
+        exit()
 
 
 def run_app():
@@ -566,7 +442,7 @@ def run_app():
     if len(arguments) == 2 and arguments[1] == "mib":
         item_type = "doughnut"
         waiter = "buyer"
-    read_team_data()
+    read_team()
     login(False)
     show_menu()
 

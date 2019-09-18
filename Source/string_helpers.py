@@ -353,7 +353,7 @@ def update_menu_string(menu_string_original, option, up):
         2 if option > (3 if not up else 5) else (1 if option > (0 if not up else 2) else 0))
     jump_after = 3 if option > 9 else (2 if option > 4 else (1 if option > 1 else 0))
 
-    menu_string_lines = menu_string_original.split("\n")
+    menu_string_lines = menu_string_original.splitlines()
     menu_string_lines[10 + jump_after + 2 * option] = ""
     menu_string_lines[12 + jump_after + 2 * option] = ""
 
