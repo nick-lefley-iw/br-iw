@@ -143,7 +143,7 @@ def log_items(is_people):
             print(f"  You Must Add {item_type.capitalize()} Options Before You Can Add Team Members.")
             input("\n  Press Enter To Return To Menu ")
             return
-        display_drinks()
+        print(display_drinks(item_type, drinks))
 
     finished = False
 
@@ -198,42 +198,13 @@ def log_items(is_people):
         finished = finish_check.upper() == "N"
 
 
-def display_people():
-    max_length_person = 30
-    max_length_preference = 30
-    max_length_person_key = 7
-    max_length_preference_key = 12 if item_type == "drink" else 15
-    for key, item in team_members.team_members.items():
-        max_length_person_key = max(max_length_person_key, len(str(key)) + 4)
-        max_length_person = max(max_length_person, len(item.name) + 4)
-        max_length_preference_key = max(max_length_preference_key, len(str(item.preference)) + 4)
-        max_length_preference = max(max_length_preference, len(item.get_preference()) + 4)
-
-    print(line_break_4(max_length_person_key, max_length_person, max_length_preference_key, max_length_preference, True, False))
-    print(f"  ║  Id{' ' * (max_length_person_key - 4)}║  Team Members{' ' * (max_length_person - 14)}║" +
-          f"  {item_type.capitalize()} Id{' ' * (max_length_preference_key - (10 if item_type == 'drink' else 13))}║  Favourite {item_type.capitalize()}{' ' * (max_length_preference - (17 if item_type == 'drink' else 20))}║")
-
-    print(line_break_4(max_length_person_key, max_length_person, max_length_preference_key, max_length_preference, False, False))
-    for key, person in team_members.team_members.items():
-        name = person.get_name()
-        preference = person.preference
-        print(
-            f"  ║  {key}{' ' * (max_length_person_key - len(str(key)) - 2)}║  {name}{' ' * (max_length_person - len(name) - 2)}║" +
-            f"  {preference}{' ' * (max_length_preference_key - len(str(preference)) - 2)}║  {person.get_preference()}{' ' * (max_length_preference - len(person.get_preference()) - 2)}║")
-    if len(team_members.get_ids()) == 0:
-        print(
-            f"  ║{' ' * max_length_person_key}║{' ' * max_length_person}║{' ' * max_length_preference_key}║{' ' * max_length_preference}║")
-    print(line_break_4(max_length_person_key, max_length_person, max_length_preference_key, max_length_preference, False, True))
-    print("")
-
-
 def update_preference():
     if len(team_members.get_ids()) == 0 or len(drinks.get_ids()) == 0:
         print(f"  You Must Add Team Members And {item_type.capitalize()} Options Before You Can Update Favourites.")
         input("\n  Press Enter To Return To Menu ")
         return
 
-    display_people()
+    print(display_people(item_type, team_members))
     person = ""
 
     while True:
@@ -252,7 +223,7 @@ def update_preference():
         else:
             break
 
-    display_drinks()
+    print(display_drinks(item_type, drinks))
     person_name = team_members.get_team_member(int(person)).get_name()
     drink = ""
 
@@ -297,26 +268,6 @@ def update_preference():
     input("\n  Press Enter To Return To Menu ")
 
 
-def display_drinks():
-    max_length = 30
-    max_length_key = 7
-    for key, item in drinks.drinks.items():
-        max_length_key = max(max_length_key, len(str(key)) + 4)
-        max_length = max(max_length, len(item.name) + 4)
-
-    print(line_break_2(max_length_key, max_length, True, False))
-    print(f"  ║  Id{' ' * (max_length_key - 4)}║  {item_type.capitalize()} Options{' ' * (max_length - (15 if item_type == 'drink' else 18))}║")
-
-    print(line_break_2(max_length_key, max_length, False, False))
-    for key, item in drinks.drinks.items():
-        print(
-            f"  ║  {key}{' ' * (max_length_key - len(str(key)) - 2)}║  {item.get_name()}{' ' * (max_length - len(item.get_name()) - 2)}║")
-    if len(drinks.get_ids()) == 0:
-        print(f"  ║{' ' * max_length_key}║{' ' * max_length}║")
-    print(line_break_2(max_length_key, max_length, False, True))
-    print("")
-
-
 def update_order_records():
     lines_to_keep = []
     try:
@@ -354,14 +305,15 @@ def show_order():
     update_order_records()
     os.system("clear")
     print(ascii_images["view_order"])
-    display_order()
+    print(display_order(drinks_round, drinks, waiter))
 
 
 def distribute_order():
     input(f"  Press Enter To Distribute {item_type.capitalize()}s ")
     os.system("clear")
     print(ascii_images["distribute_order"])
-    distribute()
+    print(distribute(drinks_round, drinks, team_members, item_type))
+    input("\n  Press Enter To Return To Menu ")
 
 
 def select_brewer():
@@ -370,7 +322,7 @@ def select_brewer():
         input("\n  Press Enter To Return To Menu ")
         return False
 
-    display_people()
+    print(display_people(item_type, team_members))
     print(f"  Type 'X' To Pick The {waiter.capitalize()} At Random\n")
 
     drinks_round.clear_order()
@@ -408,7 +360,7 @@ def select_brewer():
 def take_order():
     global any_orders
 
-    display_drinks()
+    print(display_drinks(item_type, drinks))
     print(f"  Leave Blank If No {item_type.capitalize()} Required")
     print(f"  Type 'X' To Use Their Favourite {item_type.capitalize()}\n")
 
@@ -442,54 +394,6 @@ def take_favourite_order():
 
     show_order()
     distribute_order()
-
-
-def display_order():
-    max_length = 30
-    for item, data in drinks_round.drinks.items():
-        stored_amount = 5
-        amount = len(data)
-        stored_amount += len(str(amount))
-        stored_amount += len(drinks.get_drink(item).name + ("s" if amount != 1 else ""))
-        max_length = max(max_length, stored_amount)
-    max_length = max(max_length, 22 + len(drinks_round.get_brewer()))
-
-    print("")
-    print(line_break(max_length, True, False))
-    print(
-        f"  ║  {drinks_round.get_brewer()} Will Need To {'Make' if waiter == 'brewer' else 'Buy'}{' ' * (max_length - (20 if waiter == 'brewer' else 19) - len(drinks_round.get_brewer()))}║")
-
-    print(line_break(max_length, False, False))
-    for item, data in drinks_round.drinks.items():
-        amount = len(data)
-        string_length = 3 + len(str(amount)) + len(drinks.get_drink(item).name + ("s" if amount != 1 else ""))
-        print(
-            f"  ║  {str(amount)} {drinks.get_drink(item).get_name()}{('s' if amount != 1 else '')}{' ' * (max_length - string_length)}║")
-    if len(drinks_round.get_drinks_in_order()) == 0:
-        print(f"  ║{' ' * max_length}║")
-    print(line_break(max_length, False, True))
-    print("")
-
-
-def distribute():
-    if len(drinks_round.get_drinks_in_order()) == 0:
-        print(f"  There Were No {item_type.capitalize()}s To Distribute In The Last Order.")
-    else:
-        for item, people in drinks_round.drinks.items():
-            max_length = max(30, len(drinks.get_drink(item).name) + 4)
-            for person in people:
-                max_length = max(max_length, len(team_members.get_team_member(person).name) + 4)
-            print("")
-
-            print(line_break(max_length, True, False))
-            print(
-                f"  ║  {drinks.get_drink(item).get_name()}{' ' * (max_length - len(drinks.get_drink(item).name) - 2)}║")
-            print(line_break(max_length, False, False))
-            for person in people:
-                print(
-                    f"  ║  {team_members.get_team_member(person).get_name()}{' ' * (max_length - len(team_members.get_team_member(person).name) - 2)}║")
-            print(line_break(max_length, False, True))
-    input("\n  Press Enter To Return To Menu ")
 
 
 def no_order():
@@ -549,7 +453,7 @@ def show_menu():
         # view drink options
         elif option == 1:
             print(ascii_images[f"view_{item_type}_options"])
-            display_drinks()
+            print(display_drinks(item_type, drinks))
             input("  Press Enter To Return To Menu ")
         # add team members
         elif option == 2:
@@ -562,7 +466,7 @@ def show_menu():
         # view team members
         elif option == 4:
             print(ascii_images["view_team_members"])
-            display_people()
+            print(display_people(item_type, team_members))
             input("  Press Enter To Return To Menu ")
         # take order
         elif option == 5:
@@ -583,7 +487,7 @@ def show_menu():
         elif option == 7:
             print(ascii_images["view_last_order"])
             if any_orders:
-                display_order()
+                print(display_order(drinks_round, drinks, waiter))
                 input("  Press Enter To Return To Menu ")
             else:
                 no_order()
@@ -591,7 +495,8 @@ def show_menu():
         elif option == 8:
             print(ascii_images["distribute_last_order"])
             if any_orders:
-                distribute()
+                print(distribute(drinks_round, drinks, team_members, item_type))
+                input("\n  Press Enter To Return To Menu ")
             else:
                 no_order()
         # clear last order
