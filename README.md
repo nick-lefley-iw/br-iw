@@ -13,3 +13,12 @@
 ## Contribution Requirements
 
 **Keep code consistent** with mine, using PyCharm's inbuilt linter as a guide. 
+
+
+## Brief Code Breakdown
+
++ **order.py** contains the main code functionality, including the app start.
++ **classes.py** contains all classes.
++ **persistence_management.py** controls all communication with the .txt files.
++ **string_helpers.py** contains a library of useful string funtions, and table outputs for all displays.
++ **coffee.py** is not used!
