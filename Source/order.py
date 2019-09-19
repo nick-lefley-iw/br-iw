@@ -14,6 +14,7 @@ largest_drink_id = 0
 item_type = "drink"
 waiter = "brewer"
 
+resize = lambda: os.system("printf '\e[8;100;200t'")
 
 def login(already_got_team):
     global team_name
@@ -451,6 +452,7 @@ def run_app():
     global item_type
     global waiter
 
+    resize()
     arguments = sys.argv
     if len(arguments) == 2 and arguments[1] == "mib":
         item_type = "doughnut"
