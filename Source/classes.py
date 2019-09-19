@@ -127,8 +127,9 @@ class Drink:
 
 
 class TeamMember:
-    def __init__(self, name, preference, largest_team_member_id, team_member_id=None):
-        self.id = team_member_id if team_member_id else (1 if len(team_members.get_ids()) == 0 else largest_team_member_id + 1)
+    def __init__(self, name, preference, team_members, largest_team_member_id, team_member_id=None):
+        self.id = team_member_id if team_member_id else (
+            1 if len(team_members.get_ids()) == 0 else largest_team_member_id + 1)
         self.name = name
         self.preference = preference
 

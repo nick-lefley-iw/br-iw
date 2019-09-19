@@ -117,7 +117,7 @@ def log_items(is_people):
                         if response.lower() == "n":
                             break
                     else:
-                        team_member = TeamMember(item_name.lower(), int(preference), largest_team_member_id)
+                        team_member = TeamMember(item_name.lower(), int(preference),team_members, largest_team_member_id)
                         largest_team_member_id = max(largest_team_member_id, team_member.id)
                         team_members.add_team_member(team_member)
                         append_team_member(item_type, team_member, item_name, preference, team_name)
