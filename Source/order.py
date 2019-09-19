@@ -14,7 +14,6 @@ largest_drink_id = 0
 item_type = "drink"
 waiter = "brewer"
 
-resize = lambda: os.system("printf '\e[8;100;200t'")
 
 def login(already_got_team):
     global team_name
@@ -117,7 +116,7 @@ def log_items(is_people):
                         if response.lower() == "n":
                             break
                     else:
-                        team_member = TeamMember(item_name.lower(), int(preference),team_members, largest_team_member_id)
+                        team_member = TeamMember(item_name.lower(), int(preference), largest_team_member_id)
                         largest_team_member_id = max(largest_team_member_id, team_member.id)
                         team_members.add_team_member(team_member)
                         append_team_member(item_type, team_member, item_name, preference, team_name)
@@ -452,7 +451,7 @@ def run_app():
     global item_type
     global waiter
 
-    resize()
+    os.system("printf '\e[8;100;200t'")
     arguments = sys.argv
     if len(arguments) == 2 and arguments[1] == "mib":
         item_type = "doughnut"

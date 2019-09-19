@@ -1,5 +1,6 @@
 # Data safety
 data/*
+backups/*
 
 
 # Created by .ignore support plugin (hsz.mobi)

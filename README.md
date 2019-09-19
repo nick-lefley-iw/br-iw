@@ -1,18 +1,21 @@
 ## To Set-Up and Run
 
-1. Check out this repository recursively:
+1. Check out this repository:
 
-  `git clone --recursive git@github.com:nick-lefley-iw/br-iw.git`.
+  `git clone git@github.com:nick-lefley-iw/br-iw.git`.
 
 2. Change directory to `br-iw`.
 
-3. Run `python3 -m Source.order`.
+3. Install dependencies from requirements.txt with `pip install -r requirements.txt`.
+
+4. Run `python3 -m Source.order`.
 
 
 
 ## Contribution Requirements
 
-**Keep code consistent** with mine, using PyCharm's inbuilt linter as a guide. 
++ **Keep code consistent** with mine, using PyCharm's inbuilt linter as a guide. 
++ Run all tests using `pytest -m tests`. Any failures will result in pull requests being rejected.
 
 
 ## Brief Code Breakdown
