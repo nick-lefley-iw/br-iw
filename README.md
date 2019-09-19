@@ -1,15 +1,10 @@
 ## To Set-Up and Run
 
-1. Check out this repository:
-
-  `git clone git@github.com:nick-lefley-iw/br-iw.git`.
-
+1. Check out this repository `git clone git@github.com:nick-lefley-iw/br-iw.git`.
 2. Change directory to `br-iw`.
-
 3. Install dependencies from requirements.txt with `pip install -r requirements.txt`.
-
 4. Run `python3 -m Source.order`.
-
+5. Default team logon is **admin** with **password**.
 
 
 ## Contribution Requirements
