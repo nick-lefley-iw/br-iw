@@ -131,6 +131,13 @@ def log_items(is_people):
         while finish_check.upper() != "Y" and finish_check.upper() != "N":
             finish_check = input(f"  Sorry, I Did Not Understand That. {add_text}? (Y/N) ").strip()
         finished = finish_check.upper() == "N"
+        if not finished:
+            os.system("clear")
+            if is_people:
+                print(ascii_images["add_team_members"])
+                print(display_drinks(item_type, drinks))
+            else:
+                print(ascii_images[f"add_{item_type}_options"])
 
 
 def update_preference():
@@ -297,7 +304,7 @@ def clear_last_order():
                 f"  Sorry, I Did Not Understand That. Are You Sure You Want To Clear The Last Order? (Y/N) ").strip()
         if finish_check.upper() == "Y":
             any_orders = False
-            clear_order_records(item_type)
+            clear_order_records(item_type, team_name)
             input("\n  Press Enter To Return To Menu ")
     else:
         no_order()

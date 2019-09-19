@@ -46,7 +46,6 @@ def read_team():
 
 
 def read_data(item_type, team_name, any_orders, largest_team_member_id, largest_drink_id):
-
     try:
         with open(f"data/{item_type}s.txt", "r") as drink_records:
             for line in drink_records:
@@ -156,10 +155,30 @@ def update_order_records(item_type, team_name):
         return
 
 
-def clear_order_records(item_type):
+def clear_order_records(item_type, team_name):
+    lines_to_keep = []
+    try:
+        with open(f"data/{item_type}_order.txt", "r") as order_records:
+            for line in order_records.readlines():
+                data = line.split("|")
+                if len(data) > 2 and data[-2] != team_name:
+                    lines_to_keep.append(line)
+    except FileNotFoundError as err:
+        print("  Unable To Open Order File: " + str(err))
+        return
+
     try:
         open(f'data/{item_type}_order.txt', 'w').close()
     except FileNotFoundError as err:
         print("  Unable To Open Order File: " + str(err))
+        return
+
+    try:
+        with open(f"data/{item_type}_order.txt", "w") as order_records:
+            for line in lines_to_keep:
+                order_records.write(line)
+    except FileNotFoundError as err:
+        print("  Unable To Open Order File: " + str(err))
+        return
     else:
         print("  The Stored Last Order Has Been Cleared.")

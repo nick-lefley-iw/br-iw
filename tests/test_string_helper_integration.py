@@ -186,6 +186,103 @@ class TestStringHelperIntegration(unittest.TestCase):
         team_members.clear_team_members()
         drinks_round.clear_order()
 
+    def test_display_no_distribute(self):
+        self.assertEqual(distribute(drinks_round, drinks, team_members, "drink"), "  There Were No Drinks To Distribute In The Last Order.")
+
+    def test_display_distribute(self):
+        drinks.add_drink(Drink("coffee", 0))
+        team_members.add_team_member(TeamMember("john", 1, 0))
+        team_members.add_team_member(TeamMember("mary", 1, 1))
+        team_members.add_team_member(TeamMember("steve", 1, 2))
+        drinks_round.add_drink(1, 1)
+        drinks_round.add_drink(1, 2)
+        drinks_round.add_drink(1, 3)
+        drinks_round.update_brewer(1)
+        self.assertMultiLineEqual(distribute(drinks_round, drinks, team_members, "drink"), """
+  ╔══════════════════════════════╗
+  ║  Coffee                      ║
+  ╠══════════════════════════════╣
+  ║  John                        ║
+  ║  Mary                        ║
+  ║  Steve                       ║
+  ╚══════════════════════════════╝
+""")
+        team_members.clear_team_members()
+        drinks_round.clear_order()
+        drinks.clear_drinks()
+
+    def test_display_distribute_multiple_drinks(self):
+        drinks.add_drink(Drink("coffee", 0))
+        drinks.add_drink(Drink("tea", 1))
+        team_members.add_team_member(TeamMember("john", 1, 0))
+        team_members.add_team_member(TeamMember("mary", 1, 1))
+        team_members.add_team_member(TeamMember("steve", 1, 2))
+        drinks_round.add_drink(1, 1)
+        drinks_round.add_drink(1, 2)
+        drinks_round.add_drink(2, 3)
+        drinks_round.update_brewer(1)
+        self.assertMultiLineEqual(distribute(drinks_round, drinks, team_members, "drink"), """
+  ╔══════════════════════════════╗
+  ║  Coffee                      ║
+  ╠══════════════════════════════╣
+  ║  John                        ║
+  ║  Mary                        ║
+  ╚══════════════════════════════╝
+
+  ╔══════════════════════════════╗
+  ║  Tea                         ║
+  ╠══════════════════════════════╣
+  ║  Steve                       ║
+  ╚══════════════════════════════╝
+""")
+        team_members.clear_team_members()
+        drinks_round.clear_order()
+        drinks.clear_drinks()
+
+    def test_display_distribute_large_drinks(self):
+        drinks.add_drink(Drink("coffeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", 0))
+        team_members.add_team_member(TeamMember("john", 1, 0))
+        team_members.add_team_member(TeamMember("mary", 1, 1))
+        team_members.add_team_member(TeamMember("steve", 1, 2))
+        drinks_round.add_drink(1, 1)
+        drinks_round.add_drink(1, 2)
+        drinks_round.add_drink(1, 3)
+        drinks_round.update_brewer(1)
+        self.assertMultiLineEqual(distribute(drinks_round, drinks, team_members, "drink"), """
+  ╔════════════════════════════════════════════════╗
+  ║  Coffeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee  ║
+  ╠════════════════════════════════════════════════╣
+  ║  John                                          ║
+  ║  Mary                                          ║
+  ║  Steve                                         ║
+  ╚════════════════════════════════════════════════╝
+""")
+        team_members.clear_team_members()
+        drinks_round.clear_order()
+        drinks.clear_drinks()
+
+    def test_display_distribute_to_large_people(self):
+        drinks.add_drink(Drink("coffee", 0))
+        team_members.add_team_member(TeamMember("johnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn", 1, 0))
+        team_members.add_team_member(TeamMember("mary", 1, 1))
+        team_members.add_team_member(TeamMember("steve", 1, 2))
+        drinks_round.add_drink(1, 1)
+        drinks_round.add_drink(1, 2)
+        drinks_round.add_drink(1, 3)
+        drinks_round.update_brewer(1)
+        self.assertMultiLineEqual(distribute(drinks_round, drinks, team_members, "drink"), """
+  ╔═══════════════════════════════════════════════╗
+  ║  Coffee                                       ║
+  ╠═══════════════════════════════════════════════╣
+  ║  Johnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn  ║
+  ║  Mary                                         ║
+  ║  Steve                                        ║
+  ╚═══════════════════════════════════════════════╝
+""")
+        team_members.clear_team_members()
+        drinks_round.clear_order()
+        drinks.clear_drinks()
+
 
 if __name__ == "__main__":
     unittest.main()

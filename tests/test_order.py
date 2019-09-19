@@ -239,6 +239,13 @@ class TestOrder(unittest.TestCase):
         hide_print.assert_called_once_with(ascii_images[f"rick"])
         hide_input.assert_called_once_with("  Press Enter To Return To Menu ")
 
+    @unittest.mock.patch('os.system', return_value='')
+    @unittest.mock.patch('Source.order.menu_user_input', return_value=return_multiple("", 15))
+    def test_show_menu_select_option_15(self, menu_input, hide_system):
+        show_menu()
+        menu_input.assert_called_once_with(ascii_images["drink_menu_string"], 0)
+        hide_system.assert_called_once_with("clear")
+
 
 if __name__ == "__main__":
     unittest.main()
