@@ -3,7 +3,7 @@ from Source.string_helpers import *
 from Source.classes import *
 
 
-class StringHelperIntegrationTests(unittest.TestCase):
+class TestStringHelperIntegration(unittest.TestCase):
 
     def test_display_people(self):
         team_members.add_team_member(TeamMember("john smith", 1, 0))

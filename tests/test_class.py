@@ -2,7 +2,7 @@ import unittest
 from Source.classes import *
 
 
-class ClassTests(unittest.TestCase):
+class TestClass(unittest.TestCase):
 
     # team
     def test_update_team_password(self):

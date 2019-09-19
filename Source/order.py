@@ -26,10 +26,16 @@ def login(already_got_team):
     if not already_got_team:
         team_name = input("  Team Name: ").strip().lower()
         while not team_name.strip() or team_name not in teams.get_team_names():
+            os.system("clear")
+            print(ascii_images["login"])
             if not team_name.strip():
-                team_name = input(f"  Sorry, I Did Not Understand That. Team Name: ").strip().lower()
+                print(f"  ** Invalid Input **")
             else:
-                team_name = input(f"  Sorry, That Team Does Not Exist. Team Name: ").strip().lower()
+                print(f"  ** Invalid Team Name **")
+            team_name = input(f"  Team Name: ").strip().lower()
+        os.system("clear")
+        print(ascii_images["login"])
+        print(f"  Team Name: {team_name}")
     else:
         print(f"  Team Name: {team_name}")
         print(f"  ** Incorrect Password **")
@@ -297,6 +303,47 @@ def clear_last_order():
         no_order()
 
 
+def menu_user_input(menu_string, option):
+    os.system("clear")
+    screen = curses.initscr()
+    curses.noecho()
+    curses.cbreak()
+    screen.keypad(True)
+    screen.addstr(menu_string)
+    curses.curs_set(0)
+
+    try:
+        while True:
+            char = screen.getch()
+            if char == curses.KEY_ENTER or char == 10:
+                break
+            elif char == curses.KEY_UP and option != 0:
+                screen.clear()
+                menu_string = update_menu_string(menu_string, option, True)
+                try:
+                    screen.addstr(menu_string)
+                except:
+                    pass
+                option -= 1
+            elif char == curses.KEY_DOWN and option != 14:
+                screen.clear()
+                menu_string = update_menu_string(menu_string, option, False)
+                try:
+                    screen.addstr(menu_string)
+                except:
+                    pass
+                option += 1
+            curses.curs_set(0)
+    finally:
+        screen.clear()
+        screen.keypad(False)
+        curses.nocbreak()
+        curses.echo()
+        curses.endwin()
+
+    return menu_string, option
+
+
 def show_menu():
     global any_orders
 
@@ -304,43 +351,7 @@ def show_menu():
     menu_string = ascii_images[item_type + "_menu_string"]
 
     while True:
-        os.system("clear")
-        screen = curses.initscr()
-        curses.noecho()
-        curses.cbreak()
-        screen.keypad(True)
-        screen.addstr(menu_string)
-        curses.curs_set(0)
-
-        try:
-            while True:
-                char = screen.getch()
-                if char == curses.KEY_ENTER or char == 10:
-                    break
-                elif char == curses.KEY_UP and option != 0:
-                    screen.clear()
-                    menu_string = update_menu_string(menu_string, option, True)
-                    try:
-                        screen.addstr(menu_string)
-                    except:
-                        pass
-                    option -= 1
-                elif char == curses.KEY_DOWN and option != 14:
-                    screen.clear()
-                    menu_string = update_menu_string(menu_string, option, False)
-                    try:
-                        screen.addstr(menu_string)
-                    except:
-                        pass
-                    option += 1
-                curses.curs_set(0)
-        finally:
-            screen.clear()
-            screen.keypad(False)
-            curses.nocbreak()
-            curses.echo()
-            curses.endwin()
-
+        menu_string, option = menu_user_input(menu_string, option)
         os.system("clear")
 
         # add drinks options
@@ -417,10 +428,12 @@ def show_menu():
             print(ascii_images["exit"])
             end_app()
         # bonus
-        else:
+        elif option == 14:
             print(ascii_images["rick"])
             os.system(ascii_images["lyrics"])
-            input("Press Enter To Return To Menu ")
+            input("  Press Enter To Return To Menu ")
+        else:
+            break
 
 
 def end_app():

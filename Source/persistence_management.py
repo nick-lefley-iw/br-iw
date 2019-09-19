@@ -106,7 +106,7 @@ def update_team_member_preference(item_type, person, person_name, drink, team_na
     changes_made = False
     new_lines = []
     try:
-        with open(f"data/people_{item_type}.txt", "r") as people_records:
+        with open(f"data/people_{item_type}.txt", "r+") as people_records:
             lines = people_records.readlines()
             for line in lines:
                 if line.startswith(f"{person}|"):

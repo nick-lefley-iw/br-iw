@@ -2,7 +2,7 @@ import unittest
 from Source.string_helpers import *
 
 
-class StringHelperTests(unittest.TestCase):
+class TestStringHelper(unittest.TestCase):
 
     def test_line_break_top(self):
         self.assertEqual(line_break(10, True, False), "  ╔══════════╗")
