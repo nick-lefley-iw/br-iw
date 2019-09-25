@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch
 from unittest.mock import call
-from Source.order import *
+from Source.app import *
 
 
 def return_multiple(a, b):
@@ -30,7 +30,7 @@ class TestOrder(unittest.TestCase):
         show_menu()
         menu_input.assert_has_calls([call(ascii_images["drink_menu_string"], 0), call("", 1)])
         hide_system.assert_has_calls([call("clear"), call("clear")])
-        hide_print.assert_has_calls([call(ascii_images[f"view_drink_options"]), call(display_drinks("drink", drinks))])
+        hide_print.assert_has_calls([call(ascii_images[f"view_drink_options"]), call(display_drinks(0, item_types, drinks))])
         hide_input.assert_called_once_with("  Press Enter To Return To Menu ")
 
     @unittest.mock.patch('builtins.print', return_value='')
@@ -65,7 +65,7 @@ class TestOrder(unittest.TestCase):
         show_menu()
         menu_input.assert_has_calls([call(ascii_images["drink_menu_string"], 0), call("", 4)])
         hide_system.assert_has_calls([call("clear"), call("clear")])
-        hide_print.assert_has_calls([call(ascii_images[f"view_team_members"]), call(display_people("drink", team_members))])
+        hide_print.assert_has_calls([call(ascii_images[f"view_team_members"]), call(display_people(0, item_types, team_members))])
         hide_input.assert_called_once_with("  Press Enter To Return To Menu ")
 
     @unittest.mock.patch('builtins.print', return_value='')
@@ -89,7 +89,7 @@ class TestOrder(unittest.TestCase):
     def test_show_menu_select_option_5_with_success(self, operation1, operation2, menu_input, hide_system, hide_input, hide_print):
         show_menu()
         operation1.assert_called_once_with()
-        operation2.assert_called_once_with()
+        operation2.assert_called_once_with(None)
         menu_input.assert_has_calls([call(ascii_images["drink_menu_string"], 0), call("", 5)])
         hide_system.assert_has_calls([call("clear"), call("clear"), call("clear")])
         hide_print.assert_has_calls([call(ascii_images[f"select_brewer"]), call(ascii_images[f"take_order"])])
@@ -115,7 +115,7 @@ class TestOrder(unittest.TestCase):
     def test_show_menu_select_option_6_with_success(self, operation1, operation2, menu_input, hide_system, hide_input, hide_print):
         show_menu()
         operation1.assert_called_once_with()
-        operation2.assert_called_once_with()
+        operation2.assert_called_once_with(None)
         menu_input.assert_has_calls([call(ascii_images["drink_menu_string"], 0), call("", 6)])
         hide_system.assert_has_calls([call("clear"), call("clear"), call("clear")])
         hide_print.assert_called_once_with(ascii_images[f"select_brewer"])
@@ -139,11 +139,11 @@ class TestOrder(unittest.TestCase):
     @unittest.mock.patch('Source.order.menu_user_input', side_effect=[return_multiple("", 7), return_multiple("", 15)])
     def test_show_menu_select_option_7_with_order(self, menu_input, hide_system, hide_input, hide_print, hide_any_orders):
         drinks_round.update_brewer(1)
-        team_members.add_team_member(TeamMember("john", 1, 0))
+        team_members.add_team_member(TeamMember("john", 1, 1))
         show_menu()
         menu_input.assert_has_calls([call(ascii_images["drink_menu_string"], 0), call("", 7)])
         hide_system.assert_has_calls([call("clear"), call("clear")])
-        hide_print.assert_has_calls([call(ascii_images[f"view_last_order"]), call(display_order(drinks_round, drinks, "brewer"))])
+        hide_print.assert_has_calls([call(ascii_images[f"view_last_order"]), call(display_order(drinks_round, drinks, 0))])
         hide_input.assert_called_once_with("  Press Enter To Return To Menu ")
 
     @unittest.mock.patch('builtins.print', return_value='')
@@ -167,7 +167,7 @@ class TestOrder(unittest.TestCase):
         show_menu()
         menu_input.assert_has_calls([call(ascii_images["drink_menu_string"], 0), call("", 8)])
         hide_system.assert_has_calls([call("clear"), call("clear")])
-        hide_print.assert_has_calls([call(ascii_images[f"distribute_last_order"]), call(distribute(drinks_round, drinks, team_members, "drink"))])
+        hide_print.assert_has_calls([call(ascii_images[f"distribute_last_order"]), call(distribute(drinks_round, drinks, team_members, 0, item_types))])
         hide_input.assert_called_once_with("\n  Press Enter To Return To Menu ")
 
     @unittest.mock.patch('builtins.print', return_value='')
