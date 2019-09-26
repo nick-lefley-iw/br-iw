@@ -35,8 +35,15 @@ def update_sql(sql_string):
         connection.close()
 
 
-def update_team_password(new_password, teams):
-    update_sql(f"UPDATE team SET password = '{new_password}' WHERE id = {teams.current_team_id}")
+def append_team(item_name, password):
+    update_sql(f"INSERT INTO team(name, password) VALUES ('{item_name.lower()}', '{password}')")
+    new_id = select_sql(f"SELECT MAX(id) from team")[0][0]
+
+    return new_id
+
+
+def update_team_password(new_password, current_team_id):
+    update_sql(f"UPDATE team SET password = '{new_password}' WHERE id = {current_team_id}")
 
 
 def read_team(teams):
@@ -83,20 +90,21 @@ def update_team_member_preference(person, drink):
     update_sql(f"UPDATE team_member SET preference_id = {drink} WHERE id = {person}")
 
 
-def update_order_records(item_type, old_id, drinks_round, teams):
+def create_round(old_id, brewer, current_team_id, item_type):
     if old_id:
         clear_order_records(old_id)
 
-    update_sql(f"INSERT INTO round(brewer_id, team_id, item_type) VALUES ({drinks_round.brewer}, {teams.current_team_id}, {item_type})")
+    update_sql(f"INSERT INTO round(brewer_id, team_id, item_type) VALUES ({brewer}, {current_team_id}, {item_type})")
     new_id = select_sql(f"SELECT MAX(id) from round")[0][0]
+    return new_id
 
+
+def update_order_records(drinks_round, round_id):
     insert_sql = "INSERT INTO drink_order(drink_id, team_member_id, round_id) VALUES "
     for drink, people in drinks_round.drinks.items():
         for person in people:
-            insert_sql += f"({drink}, {person}, {new_id}), "
+            insert_sql += f"({drink}, {person}, {round_id}), "
     update_sql(insert_sql[:-2])
-
-    return new_id
 
 
 def clear_order_records(old_id):

@@ -63,5 +63,5 @@ def change_password(correct_try, teams):
         change_password(False, teams)
     else:
         new_password = getpass.getpass("  New Password: ")
-        update_team_password(new_password, teams)
+        update_team_password(new_password, teams.current_team_id)
         teams.get_team(teams.current_team_id).update_password(new_password)

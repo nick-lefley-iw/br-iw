@@ -2,12 +2,13 @@ import os
 import random
 import time
 from Source.string_helpers import ascii_images, display_order, display_people, distribute, display_drinks
-from Source.controllers.persistence_management_controller import update_order_records, clear_order_records
+from Source.controllers.persistence_management_controller import update_order_records, create_round, clear_order_records
 from Source.enums import *
 
 
 def show_order(old_id, item_type, drinks_round, drinks, teams, team_members):
-    new_id = update_order_records(item_type, old_id, drinks_round, teams)
+    new_id = create_round(old_id, drinks_round.brewer, teams.current_team_id, item_type)
+    update_order_records(drinks_round, new_id)
     drinks_round.update_id(new_id)
     os.system("clear")
     print(ascii_images["view_order"])
