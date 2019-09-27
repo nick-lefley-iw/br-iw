@@ -40,6 +40,10 @@ class DataHandler(BaseHTTPRequestHandler):
                 drinks_round = Round()
                 read_round(0, False, int(path_elements[2]), drinks_round)
                 jd = json.dumps(drinks_round, cls=MyEncoder)
+            else:
+                print("Command Not Understood")
+        else:
+            print("Command Not Understood")
 
         if jd:
             self.wfile.write(jd.encode('utf-8'))
@@ -64,9 +68,13 @@ class DataHandler(BaseHTTPRequestHandler):
                 self.send_response(200)
             elif path_elements[1] == "drinks-order":
                 drinks_round = Round()
-                drinks_round.add_drink(int(data["drink_id"]), int(data["team_member_id"]))
+                drinks_round.add_drink(Drink("", int(data["drink_id"])), TeamMember("", 0, int(data["team_member_id"])))
                 update_order_records(drinks_round, int(path_elements[2]))
                 self.send_response(200)
+            else:
+                print("Command Not Understood")
+        else:
+            print("Command Not Understood")
 
     def do_PATCH(self):
         content_length = int(self.headers['Content-Length'])
@@ -75,21 +83,29 @@ class DataHandler(BaseHTTPRequestHandler):
 
         if len(path_elements) == 2:
             if path_elements[1] == "teams":
-                update_team_password(data["password"], int(data["id"]))
+                if "password" in data.keys():
+                    update_team_password(data["password"], int(data["id"]))
+                if "name" in data.keys():
+                    update_team_name(data["name"], int(data["id"]))
                 self.send_response(200)
-            if path_elements[1] == "team-members":
+            elif path_elements[1] == "team-members":
                 update_team_member_preference(int(data["team_member_id"]), int(data["drink_id"]))
                 self.send_response(200)
+            else:
+                print("Command Not Understood")
+        else:
+            print("Command Not Understood")
 
     def do_DELETE(self):
         content_length = int(self.headers['Content-Length'])
         data = json.loads(self.rfile.read(content_length))
         path_elements = self.path.split("/")
 
-        if len(path_elements) == 2:
-            if path_elements[1] == "drinks-round":
-                clear_order_records(int(data["id"]))
-                self.send_response(200)
+        if len(path_elements) == 2 and path_elements[1] == "drinks-round":
+            clear_order_records(int(data["id"]))
+            self.send_response(200)
+        else:
+            print("Command Not Understood")
 
 
 if __name__ == "__main__":

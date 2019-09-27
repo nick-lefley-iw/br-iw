@@ -39,7 +39,7 @@ def log_team_members(item_type, drinks, team_members, teams):
                         break
                 else:
                     team_member_id = append_team_member(item_type, item_name, preference, teams.current_team_id)
-                    team_member = TeamMember(item_name.lower(), int(preference), team_member_id)
+                    team_member = TeamMember(item_name.lower(), drinks.get_drink(int(preference)), team_member_id)
                     team_members.add_team_member(team_member)
                     break
 
@@ -59,7 +59,7 @@ def update_preference(item_type, team_members, drinks):
         input("\n  Press Enter To Return To Menu ")
         return
 
-    print(display_people(item_type, team_members, drinks))
+    print(display_people(item_type, team_members))
     person = ""
 
     while True:

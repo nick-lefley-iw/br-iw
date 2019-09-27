@@ -1,5 +1,17 @@
 import unittest
-from Source.classes import *
+from Source.classes.drink import *
+from Source.classes.team_member import *
+from Source.classes.team import *
+from Source.classes.teams import *
+from Source.classes.team_members import *
+from Source.classes.drinks import *
+from Source.classes.round import *
+
+
+drinks = Drinks()
+team_members = TeamMembers()
+teams = Teams()
+drinks_round = Round()
 
 
 class TestClass(unittest.TestCase):
@@ -23,17 +35,19 @@ class TestClass(unittest.TestCase):
     def test_get_team_member_preference(self):
         drink = Drink("coffee", 1)
         drinks.add_drink(drink)
-        team_member = TeamMember("john smith", 1, 1)
+        team_member = TeamMember("john smith", drink, 1)
         self.assertEqual(team_member.get_preference(), "Coffee")
         drinks.clear_drinks()
 
     def test_update_team_member_preference(self):
         team_member = TeamMember("john smith", 1, 1)
-        team_member.update_preference(2)
-        self.assertEqual(team_member.preference, 2)
+        drink = Drink("coffee", 1)
+        team_member.update_preference(drink)
+        self.assertEqual(team_member.preference, drink)
 
     # teams
     def test_add_team(self):
+        teams.clear_teams()
         team = Team("test", "password", 1)
         teams.add_team(team)
         self.assertDictEqual(teams.teams, {1: team})
@@ -144,6 +158,7 @@ class TestClass(unittest.TestCase):
 
     # team members
     def test_add_team_member(self):
+        team_members.clear_team_members()
         team_member = TeamMember("john smith", 1, 1)
         team_members.add_team_member(team_member)
         self.assertDictEqual(team_members.team_members, {1: team_member})
@@ -188,41 +203,55 @@ class TestClass(unittest.TestCase):
 
     # round
     def test_add_new_drink_to_round(self):
-        drinks_round.add_drink(1, 1)
-        self.assertDictEqual(drinks_round.drinks, {1: [1]})
+        drink = Drink("test", 1)
+        team_member = TeamMember("test", drink, 1)
+        drinks_round.add_drink(drink, team_member)
+        self.assertDictEqual(drinks_round.drinks, {1: {"team_member_ids": [1], "team_members": [team_member], "drink": drink}})
         drinks_round.clear_order()
 
     def test_add_drink_to_round(self):
-        drinks_round.add_drink(1, 1)
-        self.assertDictEqual(drinks_round.drinks, {1: [1]})
-        drinks_round.add_drink(1, 2)
-        self.assertDictEqual(drinks_round.drinks, {1: [1, 2]})
+        drink = Drink("test", 1)
+        team_member1 = TeamMember("test1", drink, 1)
+        team_member2 = TeamMember("test2", drink, 2)
+        drinks_round.add_drink(drink, team_member1)
+        self.assertDictEqual(drinks_round.drinks, {1: {"team_member_ids": [1], "team_members": [team_member1], "drink": drink}})
+        drinks_round.add_drink(drink, team_member2)
+        self.assertDictEqual(drinks_round.drinks, {1: {"team_member_ids": [1, 2], "team_members": [team_member1, team_member2], "drink": drink}})
         drinks_round.clear_order()
 
     def test_does_not_add_drink_to_round(self):
-        drinks_round.add_drink(1, 1)
-        self.assertDictEqual(drinks_round.drinks, {1: [1]})
-        drinks_round.add_drink(1, 1)
-        self.assertDictEqual(drinks_round.drinks, {1: [1]})
+        drink = Drink("test", 1)
+        team_member = TeamMember("test1", drink, 1)
+        drinks_round.add_drink(drink, team_member)
+        self.assertDictEqual(drinks_round.drinks, {1: {"team_member_ids": [1], "team_members": [team_member], "drink": drink}})
+        drinks_round.add_drink(drink, team_member)
+        self.assertDictEqual(drinks_round.drinks, {1: {"team_member_ids": [1], "team_members": [team_member], "drink": drink}})
         drinks_round.clear_order()
 
     def test_get_drinks_in_order(self):
-        drinks_round.add_drink(1, 1)
-        drinks_round.add_drink(1, 2)
-        drinks_round.add_drink(2, 3)
+        drink1 = Drink("test1", 1)
+        drink2 = Drink("test2", 2)
+        team_member1 = TeamMember("test1", drink1, 1)
+        team_member2 = TeamMember("test2", drink1, 2)
+        team_member3 = TeamMember("test3", drink1, 3)
+        drinks_round.add_drink(drink1, team_member1)
+        drinks_round.add_drink(drink1, team_member2)
+        drinks_round.add_drink(drink2, team_member3)
         self.assertListEqual(list(drinks_round.get_drinks_in_order()), [1, 2])
         drinks_round.clear_order()
 
     def test_get_brewer(self):
-        team_members.add_team_member(TeamMember("john smith", 1, 1))
-        drinks_round.update_brewer(1)
+        team_member = TeamMember("john smith", 1, 1)
+        team_members.add_team_member(team_member)
+        drinks_round.update_brewer(team_member)
         self.assertEqual(drinks_round.get_brewer(), "John Smith")
         team_members.clear_team_members()
         drinks_round.clear_order()
 
     def test_update_brewer(self):
-        drinks_round.update_brewer(1)
-        self.assertEqual(drinks_round.brewer, 1)
+        team_member = TeamMember("john smith", 1, 1)
+        drinks_round.update_brewer(team_member)
+        self.assertEqual(drinks_round.brewer, team_member)
         drinks_round.clear_order()
 
     def test_update_id(self):
@@ -231,9 +260,12 @@ class TestClass(unittest.TestCase):
         drinks_round.clear_order()
 
     def test_clear_order(self):
-        drinks_round.add_drink(1, 1)
-        drinks_round.add_drink(1, 2)
-        drinks_round.update_brewer(1)
+        drink = Drink("test", 1)
+        team_member1 = TeamMember("test1", drink, 1)
+        team_member2 = TeamMember("test2", drink, 2)
+        drinks_round.add_drink(drink, team_member1)
+        drinks_round.add_drink(drink, team_member2)
+        drinks_round.update_brewer(team_member1)
         drinks_round.update_id(1)
         drinks_round.clear_order()
         self.assertDictEqual(drinks_round.drinks, {})

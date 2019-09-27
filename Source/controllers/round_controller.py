@@ -7,7 +7,7 @@ from Source.enums import *
 
 
 def show_order(old_id, item_type, drinks_round, drinks, teams, team_members):
-    new_id = create_round(old_id, drinks_round.brewer, teams.current_team_id, item_type)
+    new_id = create_round(old_id, drinks_round.brewer.id, teams.current_team_id, item_type)
     update_order_records(drinks_round, new_id)
     drinks_round.update_id(new_id)
     os.system("clear")
@@ -19,7 +19,7 @@ def distribute_order(item_type, drinks_round, drinks, team_members):
     input(f"  Press Enter To Distribute {item_types[item_type].capitalize()}s ")
     os.system("clear")
     print(ascii_images["distribute_order"])
-    print(distribute(drinks_round, drinks, team_members, item_type))
+    print(distribute(drinks_round, drinks, item_type))
     input("\n  Press Enter To Return To Menu ")
 
 
@@ -29,7 +29,7 @@ def select_brewer(item_type, team_members, drinks, drinks_round):
         input("\n  Press Enter To Return To Menu ")
         return False
 
-    print(display_people(item_type, team_members, drinks))
+    print(display_people(item_type, team_members))
     print(f"  Type 'X' To Pick The {waiter_types[item_type].capitalize()} At Random\n")
 
     drinks_round.clear_order()
@@ -43,10 +43,10 @@ def select_brewer(item_type, team_members, drinks, drinks_round):
             print(f"  Sorry, That Is Not An Option.")
         else:
             if brewer.lower() != "x":
-                drinks_round.update_brewer(int(brewer))
+                drinks_round.update_brewer(team_members.get_team_member(int(brewer)))
             else:
-                drinks_round.update_brewer(random.choice(list(team_members.get_ids())))
-            print(f"\n  The {waiter_types[item_type].capitalize()} Is {drinks_round.get_brewer(team_members)}!")
+                drinks_round.update_brewer(team_members.get_team_member(random.choice(list(team_members.get_ids()))))
+            print(f"\n  The {waiter_types[item_type].capitalize()} Is {drinks_round.get_brewer()}!")
             time.sleep(1)
             return True
 
@@ -64,16 +64,16 @@ def take_order(old_id, item_type, drinks, team_members, drinks_round, teams):
     print(f"  Type 'X' To Use Their Favourite {item_types[item_type].capitalize()}\n")
 
     all_empty = True
-    for key, person in team_members.team_members.items():
+    for person in team_members.team_members.values():
         name = person.get_name()
-        preference = person.preference
+        preference = person.preference.id
 
         order = input(
-            f"  What Is The Id Of {name}'s Desired {item_types[item_type].capitalize()}? Their Favourite {item_types[item_type].capitalize()} Is {person.get_preference(drinks)} (Id {preference}) ").strip()
+            f"  What Is The Id Of {name}'s Desired {item_types[item_type].capitalize()}? Their Favourite {item_types[item_type].capitalize()} Is {person.get_preference()} (Id {preference}) ").strip()
         while (not order.isdigit() or int(order) not in drinks.get_ids()) and order.strip() and order.lower() != "x":
             order = input(f"  Sorry, That Is Not An Option. What Is The Id Of {name}'s Desired {item_types[item_type].capitalize()}? ").strip()
         if order.strip():
-            drinks_round.add_drink(preference if order.lower() == "x" else int(order), key)
+            drinks_round.add_drink(person.preference if order.lower() == "x" else drinks.get_drink(int(order)), person)
             all_empty = False
 
     show_order(old_id, item_type, drinks_round, drinks, teams, team_members)
@@ -84,8 +84,8 @@ def take_order(old_id, item_type, drinks, team_members, drinks_round, teams):
 
 
 def take_favourite_order(old_id, item_type, team_members, drinks_round, drinks, teams):
-    for key, person in team_members.team_members.items():
-        drinks_round.add_drink(person.preference, key)
+    for person in team_members.team_members.values():
+        drinks_round.add_drink(person.preference, person)
 
     show_order(old_id, item_type, drinks_round, drinks, teams, team_members)
     distribute_order(item_type, drinks_round, drinks, team_members)

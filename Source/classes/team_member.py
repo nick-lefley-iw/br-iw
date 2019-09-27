@@ -4,8 +4,13 @@ class TeamMember:
         self.name = name
         self.preference = preference
 
-    def get_preference(self, drinks):
-        return drinks.get_drink(self.preference).get_name()
+    def __eq__(self, other):
+        if isinstance(self, other.__class__):
+            return self.id == other.id and self.name == other.name and self.preference == other.preference
+        return False
+
+    def get_preference(self):
+        return self.preference.get_name()
 
     def get_name(self):
         return self.name.title()

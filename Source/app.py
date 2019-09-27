@@ -84,7 +84,7 @@ def show_menu(any_orders, item_type, teams, drinks, team_members, drinks_round):
         # view team members
         elif option == 4:
             print(ascii_images["view_team_members"])
-            print(display_people(item_type, team_members, drinks))
+            print(display_people(item_type, team_members))
             input("  Press Enter To Return To Menu ")
         # take order
         elif option == 5:
@@ -117,7 +117,7 @@ def show_menu(any_orders, item_type, teams, drinks, team_members, drinks_round):
         elif option == 8:
             print(ascii_images["distribute_last_order"])
             if any_orders:
-                print(distribute(drinks_round, drinks, team_members, item_type))
+                print(distribute(drinks_round, drinks, item_type))
                 input("\n  Press Enter To Return To Menu ")
             else:
                 no_order()

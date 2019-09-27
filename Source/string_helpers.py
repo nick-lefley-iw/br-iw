@@ -385,7 +385,7 @@ def update_menu_string(menu_string_original, option, up):
     return menu_string
 
 
-def display_people(item_type, team_members, drinks):
+def display_people(item_type, team_members):
     return_string = ""
     max_length_person = 30
     max_length_preference = 30
@@ -394,8 +394,8 @@ def display_people(item_type, team_members, drinks):
     for key, item in team_members.team_members.items():
         max_length_person_key = max(max_length_person_key, len(str(key)) + 4)
         max_length_person = max(max_length_person, len(item.name) + 4)
-        max_length_preference_key = max(max_length_preference_key, len(str(item.preference)) + 4)
-        max_length_preference = max(max_length_preference, len(item.get_preference(drinks)) + 4)
+        max_length_preference_key = max(max_length_preference_key, len(str(item.preference.id)) + 4)
+        max_length_preference = max(max_length_preference, len(item.get_preference()) + 4)
 
     return_string += line_break_4(max_length_person_key, max_length_person, max_length_preference_key, max_length_preference, True, False) + "\n"
     return_string += f"  ║  Id{' ' * (max_length_person_key - 4)}║  Team Members{' ' * (max_length_person - 14)}║  {item_types[item_type].capitalize()} Id{' ' * (max_length_preference_key - (10 if item_type == 0 else 13))}║  Favourite {item_types[item_type].capitalize()}{' ' * (max_length_preference - (17 if item_type == 0 else 20))}║\n"
@@ -403,8 +403,8 @@ def display_people(item_type, team_members, drinks):
     return_string += line_break_4(max_length_person_key, max_length_person, max_length_preference_key, max_length_preference, False, False) + "\n"
     for key, person in team_members.team_members.items():
         name = person.get_name()
-        preference = person.preference
-        return_string += f"  ║  {key}{' ' * (max_length_person_key - len(str(key)) - 2)}║  {name}{' ' * (max_length_person - len(name) - 2)}║  {preference}{' ' * (max_length_preference_key - len(str(preference)) - 2)}║  {person.get_preference(drinks)}{' ' * (max_length_preference - len(person.get_preference(drinks)) - 2)}║\n"
+        preference = person.preference.id
+        return_string += f"  ║  {key}{' ' * (max_length_person_key - len(str(key)) - 2)}║  {name}{' ' * (max_length_person - len(name) - 2)}║  {preference}{' ' * (max_length_preference_key - len(str(preference)) - 2)}║  {person.get_preference()}{' ' * (max_length_preference - len(person.get_preference()) - 2)}║\n"
     if len(team_members.get_ids()) == 0:
         return_string += f"  ║{' ' * max_length_person_key}║{' ' * max_length_person}║{' ' * max_length_preference_key}║{' ' * max_length_preference}║\n"
     return_string += line_break_4(max_length_person_key, max_length_person, max_length_preference_key, max_length_preference, False, True) + "\n\n"
@@ -438,18 +438,18 @@ def display_order(drinks_round, drinks, item_type, team_members):
     max_length = 30
     for item, data in drinks_round.drinks.items():
         stored_amount = 5
-        amount = len(data)
+        amount = len(data["team_members"])
         stored_amount += len(str(amount))
         stored_amount += len(drinks.get_drink(item).name + ("s" if amount != 1 else ""))
         max_length = max(max_length, stored_amount)
-    max_length = max(max_length, 22 + len(drinks_round.get_brewer(team_members)))
+    max_length = max(max_length, 22 + len(drinks_round.get_brewer()))
 
     return_string += "\n" + line_break(max_length, True, False) + "\n"
-    return_string += f"  ║  {drinks_round.get_brewer(team_members)} Will Need To {'Make' if item_type == 0 else 'Buy'}{' ' * (max_length - (20 if item_type == 0 else 19) - len(drinks_round.get_brewer(team_members)))}║\n"
+    return_string += f"  ║  {drinks_round.get_brewer()} Will Need To {'Make' if item_type == 0 else 'Buy'}{' ' * (max_length - (20 if item_type == 0 else 19) - len(drinks_round.get_brewer()))}║\n"
 
     return_string += line_break(max_length, False, False) + "\n"
     for item, data in drinks_round.drinks.items():
-        amount = len(data)
+        amount = len(data["team_members"])
         string_length = 3 + len(str(amount)) + len(drinks.get_drink(item).name + ("s" if amount != 1 else ""))
         return_string += f"  ║  {str(amount)} {drinks.get_drink(item).get_name()}{('s' if amount != 1 else '')}{' ' * (max_length - string_length)}║\n"
     if len(drinks_round.get_drinks_in_order()) == 0:
@@ -459,21 +459,21 @@ def display_order(drinks_round, drinks, item_type, team_members):
     return return_string
 
 
-def distribute(drinks_round, drinks, team_members, item_type):
+def distribute(drinks_round, drinks, item_type):
     if len(drinks_round.get_drinks_in_order()) == 0:
         return f"  There Were No {item_types[item_type].capitalize()}s To Distribute In The Last Order."
     else:
         return_string = ""
         for item, people in drinks_round.drinks.items():
             max_length = max(30, len(drinks.get_drink(item).name) + 4)
-            for person in people:
-                max_length = max(max_length, len(team_members.get_team_member(person).name) + 4)
+            for person in people["team_members"]:
+                max_length = max(max_length, len(person.name) + 4)
 
             return_string += "\n" + line_break(max_length, True, False) + "\n"
             return_string += f"  ║  {drinks.get_drink(item).get_name()}{' ' * (max_length - len(drinks.get_drink(item).name) - 2)}║\n"
             return_string += line_break(max_length, False, False) + "\n"
-            for person in people:
-                return_string += f"  ║  {team_members.get_team_member(person).get_name()}{' ' * (max_length - len(team_members.get_team_member(person).name) - 2)}║\n"
+            for person in people["team_members"]:
+                return_string += f"  ║  {person.get_name()}{' ' * (max_length - len(person.name) - 2)}║\n"
             return_string += line_break(max_length, False, True) + "\n"
 
         return return_string
