@@ -8,5 +8,10 @@ class Drink:
             return self.id == other.id and self.name == other.name
         return False
 
+    def to_json(self):
+        drink = self
+        drink.name = drink.name.title()
+        return drink.__dict__
+
     def get_name(self):
         return self.name.title()

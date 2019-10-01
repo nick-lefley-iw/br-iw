@@ -1,14 +1,9 @@
 import unittest
-from Source.string_helpers import *
-from Source.enums import *
-from Source.classes.drink import *
-from Source.classes.team_member import *
 from Source.classes.teams import *
 from Source.classes.team_members import *
 from Source.classes.drinks import *
 from Source.classes.round import *
 from unittest.mock import patch
-from unittest.mock import call
 from Source.controllers.persistence_management_controller import *
 
 

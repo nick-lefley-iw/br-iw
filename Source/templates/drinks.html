@@ -1,0 +1,84 @@
+{% extends "template.html" %}
+
+{% block content %}
+
+<div style="padding-top:20px">
+    <div class="col-12">
+        <div class="row">
+            <div class="offset-lg-2 col-lg-8">
+                <div class="card">
+                    <div class="card-header bg-dark text-light">
+                        <h3>
+                            <span>Drinks</span>
+                            <button type="button" class="btn btn-floating pull-right btn-primary" data-toggle="modal" data-target="#editDrink">
+                                <span>Add</span>
+                                <i class="fa fa-plus"></i>
+                            </button>
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-hover">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col">Name</th>
+                                    <th> </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for drink in data %}
+                                <tr>
+                                    <td>{{drink.name}}</td>
+                                    <td width="10%">
+                                        <a class="btn btn-floating pull-right btn-danger" href="#">
+                                            <span>Delete</span>
+                                            <i class="fa fa-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editDrink" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Drink</h5>
+                <button type="button" class="close-modal close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="edit_drink" class="needs-validation" method="post">
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <label class="col-lg-3" for="drinkName">Name</label>
+                        <div class="col-lg-9">
+                            <input type="text" class="form-control required" id="drinkName" name="drinkName" placeholder="e.g. Coffee">
+                        </div>
+                        <div class="offset-lg-3 col-lg-9 helper" style="display: none">
+                            <span class="text-danger">Name Required</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-floating btn-danger mr-auto close-modal" data-dismiss="modal">
+                        <span>Cancel</span>
+                        <i class="fa fa-times"></i>
+                    </button>
+                    <button type="submit" class="btn btn-primary btn-floating ml-auto">
+                        <span>Confirm</span>
+                        <i class="fa fa-check"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

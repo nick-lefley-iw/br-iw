@@ -98,8 +98,8 @@ def append_drink(item_type, item_name, current_team_id):
     return new_id
 
 
-def update_team_member_preference(person, drink):
-    update_sql(f"UPDATE team_member SET preference_id = {drink} WHERE id = {person}")
+def update_team_member(person, name, drink):
+    update_sql(f"UPDATE team_member SET preference_id = {drink}" + (f", name = '{name.lower()}'" if name else '') + f" WHERE id = {person}")
 
 
 def create_round(old_id, brewer, current_team_id, item_type):

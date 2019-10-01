@@ -1,6 +1,6 @@
 import os
 from Source.string_helpers import display_drinks, ascii_images, display_people
-from Source.controllers.persistence_management_controller import append_team_member, update_team_member_preference
+from Source.controllers.persistence_management_controller import append_team_member, update_team_member
 from Source.classes.team_member import TeamMember
 from Source.enums import *
 
@@ -99,6 +99,6 @@ def update_preference(item_type, team_members, drinks):
             break
 
     team_members.get_team_member(int(person)).update_preference(int(drink))
-    update_team_member_preference(person, drink)
+    update_team_member(person, None, drink)
     print("  Preference Updated.")
     input("\n  Press Enter To Return To Menu ")
