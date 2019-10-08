@@ -1,7 +1,8 @@
 # Data safety
 data/*
 backups/*
-
+Dockerfile
+ec2_copy.bash
 
 # Created by .ignore support plugin (hsz.mobi)
 ### Python template

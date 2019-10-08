@@ -102,6 +102,10 @@ def update_team_member(person, name, drink):
     update_sql(f"UPDATE team_member SET preference_id = {drink}" + (f", name = '{name.lower()}'" if name else '') + f" WHERE id = {person}")
 
 
+def update_drink(drink, name):
+    update_sql(f"UPDATE drink SET name = '{name.lower()}' WHERE id = {drink}")
+
+
 def create_round(old_id, brewer, current_team_id, item_type):
     if old_id:
         clear_order_records(old_id)
@@ -122,3 +126,7 @@ def update_order_records(drinks_round, round_id):
 def clear_order_records(old_id):
     update_sql(f"DELETE FROM drink_order WHERE round_id = {old_id}")
     update_sql(f"DELETE FROM round WHERE id = {old_id}")
+
+
+def delete_orders_for_drink(round_id, drink_id):
+    update_sql(f"DELETE FROM drink_order WHERE round_id = {round_id} AND drink_id = {drink_id}")

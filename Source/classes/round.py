@@ -8,18 +8,26 @@ class Round:
         drinks_round = self
         if drinks_round.brewer:
             brewer = drinks_round.brewer
+            brewer.name = brewer.name.title()
             if brewer.preference:
                 brewer.preference = brewer.preference.__dict__
             drinks_round.brewer = brewer.__dict__
+        drinks = []
         for drink in drinks_round.drinks.values():
             if drink["drink"]:
+                drink["drink"].name = drink["drink"].name.title()
                 drink["drink"] = drink["drink"].__dict__
+                drink["drink"]["quantity"] = len(drink["team_members"])
             team_members = drink["team_members"]
             drink["team_members"] = []
             for team_member in team_members:
+                team_member.name = team_member.name.title()
                 if team_member.preference:
+                    team_member.preference.name = team_member.preference.name.title()
                     team_member.preference = team_member.preference.__dict__
                 drink["team_members"] += [team_member.__dict__]
+            drinks.append(drink)
+        drinks_round.drinks = drinks
         return drinks_round.__dict__
 
     def add_drink(self, drink, team_member):

@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, redirect, request, render_template, session
+from flask import Flask, redirect, request, render_template, session
 from Source.classes.teams import Teams
 from Source.classes.team_members import TeamMembers
 from Source.classes.drinks import Drinks
@@ -10,24 +10,30 @@ teams = Teams()
 app.secret_key = 'any random string'
 
 
-@app.route("/teams", methods=["GET", "POST", "PATCH"])
-def team_handler():
-    if request.method == "GET":
-        return jsonify([team.__dict__ for team in teams.teams.values()])
-    elif request.method == "POST":
-        append_team(request.form["name"], request.form["password"])
-        return request.args
-    elif request.method == "PATCH":
-        if "password" in request.form.keys():
-            update_team_password(request.form["password"], int(request.form["id"]))
-        if "name" in request.form.keys():
-            update_team_name(request.form["name"], int(request.form["id"]))
-        return request.args
+@app.route("/settings", methods=["GET", "POST"])
+def settings_handler():
+    if 'username' in session and teams.current_team_id:
+        if request.method == "GET":
+            return render_template("settings.html", settings_page="active", data=teams.current_team_name.title(), team_id=request.args["team_id"], is_hidden="none")
+        elif request.method == "POST":
+            team_name = teams.current_team_name
+            if "newPassword" in request.form.keys():
+                if request.form["oldPassword"] != teams.current_team_password:
+                    return render_template("settings.html", settings_page="active", data=teams.current_team_name.title(), team_id=request.args["team_id"], open_modal="open-modal")
+                update_team_password(request.form["newPassword"], int(request.args["team_id"]))
+            if "teamName" in request.form.keys():
+                update_team_name(request.form["teamName"], int(request.args["team_id"]))
+                team_name = request.form["teamName"]
+            read_team(teams)
+            teams.update_current_team(team_name)
+            return render_template("settings.html", settings_page="active", data=teams.current_team_name.title(), team_id=request.args["team_id"], is_hidden="none")
+    else:
+        return redirect("/login")
 
 
 @app.route("/team-members", methods=["GET", "POST"])
 def team_member_handler():
-    if 'username' in session:
+    if 'username' in session and teams.current_team_id:
         if request.method == "GET":
             team_members = TeamMembers()
             read_team_member(int(request.args["team_id"]), team_members, 0)
@@ -40,8 +46,6 @@ def team_member_handler():
                 append_team_member(0, request.form["teamMemberName"], int(request.form["teamMemberPreference"]), int(request.args["team_id"]))
             else:
                 update_team_member(int(request.form["id"]), request.form["teamMemberName"], int(request.form["teamMemberPreference"]))
-            team_members = TeamMembers()
-            read_team_member(int(request.args["team_id"]), team_members, 0)
             return redirect("/team-members?team_id=" + str(request.args["team_id"]))
     else:
         return redirect("/login")
@@ -49,13 +53,16 @@ def team_member_handler():
 
 @app.route("/drinks", methods=["GET", "POST"])
 def drink_handler():
-    if 'username' in session:
+    if 'username' in session and teams.current_team_id:
         if request.method == "GET":
             drinks = Drinks()
             read_drink(int(request.args["team_id"]), drinks, 0)
             return render_template("drinks.html", drink_page="active", data=[drink.to_json() for drink in drinks.drinks.values()], team_id=request.args["team_id"])
         elif request.method == "POST":
-            append_drink(0, request.form["drinkName"], int(request.args["team_id"]))
+            if int(request.form["id"]) == 0:
+                append_drink(0, request.form["drinkName"], int(request.args["team_id"]))
+            else:
+                update_drink(int(request.form["id"]), request.form["drinkName"])
             return redirect("/drinks?team_id=" + str(request.args["team_id"]))
     else:
         return redirect("/login")
@@ -63,25 +70,45 @@ def drink_handler():
 
 @app.route("/drinks-round", methods=["GET", "POST", "DELETE"])
 def drink_round_handler():
-    if request.method == "GET":
-        drinks_round = Round()
-        read_round(0, False, int(request.args["team_id"]), drinks_round)
-        return jsonify(drinks_round.to_json())
-    elif request.method == "POST":
-        create_round(None, int(request.form["brewer"]), int(request.args["team_id"]), request.form["item_type"])
-        return request.args
-    elif request.method == "DELETE":
-        clear_order_records(int(request.form["id"]))
-        return request.args
+    if 'username' in session and teams.current_team_id:
+        if request.method == "GET":
+            drinks_round = Round()
+            read_round(0, False, int(request.args["team_id"]), drinks_round)
+            team_members = TeamMembers()
+            read_team_member(int(request.args["team_id"]), team_members, 0)
+            brewer_options = [team_member.to_json() for team_member in team_members.team_members.values()]
+            return render_template("drinks_round.html", round_page="active", data=drinks_round.to_json(), team_id=request.args["team_id"], round_id=drinks_round.id, show_if_round=("" if drinks_round.id else "none"), brewer_options=brewer_options)
+        elif request.method == "POST":
+            round_id = None if request.form["id"] == "None" or int(request.form["id"]) == 0 else int(request.form["id"])
+            new_id = create_round(round_id, int(request.form["roundBrewer"]), int(request.args["team_id"]), 0)
+            if request.form["prepopulate"] == "true":
+                drinks_round = Round()
+                team_members = TeamMembers()
+                read_team_member(int(request.args["team_id"]), team_members, 0)
+                for person in team_members.team_members.values():
+                    drinks_round.add_drink(person.preference, person)
+                update_order_records(drinks_round, new_id)
+            return redirect("/drinks-round?team_id=" + str(request.args["team_id"]))
+        elif request.method == "DELETE":
+            clear_order_records(int(request.args["id"]))
+            return request.args
+    else:
+        return redirect("/login")
 
 
-@app.route("/drinks-order", methods=["GET", "POST"])
+@app.route("/drinks-order", methods=["POST", "DELETE"])
 def drink_order_handler():
-    if request.method == "POST":
-        drinks_round = Round()
-        drinks_round.add_drink(Drink("", int(request.form["drink_id"])), TeamMember("", 0, int(request.form["team_member_id"])))
-        update_order_records(drinks_round, int(request.args["team_id"]))
-        return request.args
+    if 'username' in session and teams.current_team_id:
+        # if request.method == "POST":
+        #    drinks_round = Round()
+        #    drinks_round.add_drink(Drink("", int(request.form["drink_id"])), TeamMember("", 0, int(request.form["team_member_id"])))
+        #    update_order_records(drinks_round, int(request.args["team_id"]))
+        #    return request.args
+        if request.method == "DELETE":
+            delete_orders_for_drink(int(request.args["round_id"]), int(request.args["drink_id"]))
+            return request.args
+    else:
+        return redirect("/login")
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -101,7 +128,7 @@ def login_handler():
 
 @app.route("/home", methods=["GET"])
 def home_handler():
-    if 'username' in session:
+    if 'username' in session and teams.current_team_id:
         if request.method == "GET":
             return render_template('home.html', title="Create Form", team_id=request.args["team_id"])
     else:
@@ -110,7 +137,7 @@ def home_handler():
 
 @app.route("/logout", methods=["GET"])
 def logout_handler():
-    if 'username' in session:
+    if 'username' in session and teams.current_team_id:
         if request.method == "GET":
             session.pop('username', None)
             return redirect("/login")
@@ -120,4 +147,4 @@ def logout_handler():
 
 if __name__ == "__main__":
     read_team(teams)
-    app.run(host="localhost", port=8080)
+    app.run(host="0.0.0.0", port=8080, debug=True)

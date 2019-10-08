@@ -1,0 +1,142 @@
+{% extends "template.html" %}
+
+{% block content %}
+
+<div style="padding-top:20px">
+    <div class="col-12">
+        <div class="row">
+            <div class="offset-lg-2 col-lg-8">
+                <div class="card">
+                    <div class="card-header bg-dark text-light">
+                        <h4>
+                            <span>Settings</span>
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-hover mb-0">
+                            <tbody>
+                                <tr>
+                                    <td>Edit Team Name</td>
+                                    <td>
+                                        <button type="button" class="btn btn-floating pull-right btn-primary" data-toggle="modal" data-target="#editName">
+                                            <span>Edit</span>
+                                            <i class="fa fa-edit"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Edit Team Password</td>
+                                    <td>
+                                        <button type="button" class="btn btn-floating pull-right btn-primary {{open_modal}}" data-toggle="modal" data-target="#editPassword">
+                                            <span>Edit</span>
+                                            <i class="fa fa-edit"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <hr class="mt-0" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editName" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-light" style="border-top-left-radius: 3px; border-top-right-radius: 3px;">
+                <h5 class="modal-title">Edit Team Name</h5>
+            </div>
+            <form id="edit_team_name" class="needs-validation" method="post">
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <label class="col-lg-4">Current Name</label>
+                        <label class="col-lg-8">{{data}}</label>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-lg-4" for="teamName">New Name</label>
+                        <div class="col-lg-8">
+                            <input type="text" class="form-control required" id="teamName" name="teamName" placeholder="e.g. HR team">
+                        </div>
+                        <div class="offset-lg-4 col-lg-8 helper" style="display: none">
+                            <span class="text-danger">New Name Required</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-floating btn-danger mr-auto close-modal" data-dismiss="modal">
+                        <span>Cancel</span>
+                        <i class="fa fa-times"></i>
+                    </button>
+                    <button type="submit" class="btn btn-primary btn-floating ml-auto">
+                        <span>Confirm</span>
+                        <i class="fa fa-check"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editPassword" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-light" style="border-top-left-radius: 3px; border-top-right-radius: 3px;">
+                <h5 class="modal-title">Edit Team Password</h5>
+            </div>
+            <form id="edit_team_password" class="needs-validation" method="post">
+                <div class="modal-body">
+                    <div class="form-group row hide-on-close" style="display: {{is_hidden}}">
+                        <div class="offset-lg-4 col-lg-8">
+                            <span class="text-danger"><b>Incorrect Password</b></span>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-lg-4" for="oldPassword">Old Password</label>
+                        <div class="col-lg-8">
+                            <input type="password" class="form-control required" id="oldPassword" name="oldPassword">
+                        </div>
+                        <div class="offset-lg-4 col-lg-8 helper" style="display: none">
+                            <span class="text-danger">Old Password Required</span>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-lg-4" for="newPassword">New Password</label>
+                        <div class="col-lg-8">
+                            <input type="password" class="form-control required match" id="newPassword" name="newPassword">
+                        </div>
+                        <div class="offset-lg-4 col-lg-8 helper" style="display: none">
+                            <span class="text-danger">New Password Required</span>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-lg-4" for="confirmPassword">Confirm New Password</label>
+                        <div class="col-lg-8">
+                            <input type="password" class="form-control required match second-match" id="confirmPassword" name="confirmPassword">
+                        </div>
+                        <div class="offset-lg-4 col-lg-8 helper" style="display: none">
+                            <span class="text-danger">Password Confirmation Required</span>
+                        </div>
+                        <div class="offset-lg-4 col-lg-8 match-helper" style="display: none">
+                            <span class="text-danger">Passwords Must Match</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-floating btn-danger mr-auto close-modal" data-dismiss="modal">
+                        <span>Cancel</span>
+                        <i class="fa fa-times"></i>
+                    </button>
+                    <button type="submit" class="btn btn-primary btn-floating ml-auto">
+                        <span>Confirm</span>
+                        <i class="fa fa-check"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

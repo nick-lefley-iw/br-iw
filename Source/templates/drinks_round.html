@@ -1,0 +1,161 @@
+{% extends "template.html" %}
+
+{% block content %}
+
+<div style="padding-top:20px">
+    <div class="col-12">
+        <div class="row">
+            <div class="offset-lg-2 col-lg-8">
+                {% if data.id %}
+                <div class="card mb-4">
+                    <div class="card-header bg-dark text-light">
+                        <h4>
+                            <span>Add Order To Drinks Round</span>
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="offset-lg-3 col-lg-6">
+                            <button type="button" class="btn btn-floating btn-primary btn-block">
+                                <span>Select People</span>
+                                <i class="pl-2 fa fa-users"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                <div class="card">
+                    <div class="card-header bg-dark text-light">
+                        <h4>
+                            <span>Latest Drinks Round - </span>{% if data.id %}<span>Brewed By {{data.brewer.name}}</span>{% else %}<span>No Drinks Round Started</span>{% endif %}
+                            {% if data.drinks|length > 0 %}
+                            <button type="button" class="btn btn-floating btn-secondary mr-2 pull-right btn-sm" data-toggle="collapse" data-target="#collapse-body,#collapse-button">
+                                <span>Toggle Team Members</span>
+                                <i class="fa fa-toggle-on"></i>
+                            </button>
+                            {% endif %}
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        {% if data.id %}
+                        {% if data.drinks|length > 0 %}
+                        {% for drink in data.drinks %}
+                        <div class="card mb-3">
+                            <div class="card-header bg-dark text-light">
+                                <h5>
+                                    <span>{{drink.drink.name}}</span>
+                                    <span class="badge badge-primary">{{drink.drink.quantity}}</span>
+                                    <button class="btn btn-floating btn-danger pull-right btn-sm" style="margin-left: 5px" onclick="deleteDrinkFromRound({{round_id}}, {{drink.drink.id}})">
+                                        <span>Remove Drink</span>
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                    <a class="btn btn-floating btn-danger pull-right disabled btn-sm collapse" id="collapse-button" href="#">
+                                        <span>Remove Team Member</span>
+                                        <i class="fa fa-trash"></i>
+                                    </a>
+                                </h5>
+                            </div>
+                            <div class="card-body collapse pt-0 pb-0" id="collapse-body">
+                                <table class="table table-hover mb-0 mt-0">
+                                    <tbody>
+                                        {% for team_member in drink.team_members %}
+                                        <tr class="clickable-row">
+                                            <td>{{team_member.name}}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% else %}
+                        <div style="text-align:center">
+                            <span>No Orders Added To Drinks Round</span>
+                        </div>
+                        {% endif %}
+                        {% else %}
+                        <div class="offset-lg-3 col-lg-6">
+                            <button type="button" class="btn btn-floating btn-primary btn-block" data-toggle="modal" data-target="#editRound">
+                            <span>Start New Round</span>
+                            <i class="pl-2 fa fa-play"></i>
+                        </button>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div style="padding-top: 90px"></div>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-bottom pt-3" style="margin-left:50px; margin-right:50px; border-top-left-radius: 5px; border-top-right-radius: 5px;">
+    <ul class="navbar-nav mr-auto">
+        <li>
+            <button type="button" class="btn btn-floating btn-primary mr-2 new-round-modal" data-toggle="modal" data-target="#editRound" data-roundId="{{data.id}}">
+                <span>Start New Round</span>
+                <i class="fa fa-play"></i>
+            </button>
+        </li>
+        <li>
+            <button type="button" class="btn btn-floating btn-primary mr-2 new-round-modal prepopulate-data" data-toggle="modal" data-target="#editRound" data-roundId="{{data.id}}">
+                <span>Take Preferred Round</span>
+                <i class="fa fa-star"></i>
+            </button>
+        </li>
+        <li>
+            <button type="button" class="btn btn-floating btn-primary mr-2" style="display:{{show_if_round}}">
+                <span>Change Brewer</span>
+                <i class="fa fa-edit"></i>
+            </button>
+        </li>
+        <li class="nav-item" style="display:{{show_if_round}}">
+            <button id="deleteRound" class="btn btn-floating btn-danger" onclick="deleteRound({{round_id}})">
+                <span>Delete Round</span>
+                <i class="fa fa-trash"></i>
+            </button>
+        </li>
+    </ul>
+</nav>
+
+<div class="modal fade" id="editRound" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-light" style="border-top-left-radius: 3px; border-top-right-radius: 3px;">
+                <h5 class="modal-title">Start New Round</h5>
+            </div>
+            <form id="edit_round" class="needs-validation" method="POST">
+                <input type="hidden" name="id" class="round-id" value="0">
+                <input type="hidden" name="prepopulate" class="prepopulate" value="false">
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <label class="col-lg-3" for="roundBrewer">Brewer</label>
+                        <div class="col-lg-9">
+                            <select class="form-control required round_brewer" id="roundBrewer" name="roundBrewer">
+                                <option value="" disabled selected>Select Brewer</option>
+                                {% for team_member in brewer_options %}
+                                <option value="{{team_member.id}}">{{team_member.name}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="offset-lg-3 col-lg-9 helper" style="display: none">
+                            <span class="text-danger">Brewer Required</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-floating btn-danger mr-auto close-modal" data-dismiss="modal" onclick="return false;">
+                        <span>Cancel</span>
+                        <i class="fa fa-times"></i>
+                    </button>
+                    <button type="submit" class="btn btn-primary btn-floating ml-auto">
+                        <span>Confirm</span>
+                        <i class="fa fa-check"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
