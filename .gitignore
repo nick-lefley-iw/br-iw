@@ -1,5 +1,4 @@
 # Data safety
-data/*
 backups/*
 Dockerfile
 ec2_copy.bash

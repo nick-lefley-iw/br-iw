@@ -11,15 +11,37 @@
                     <div class="card-header bg-dark text-light">
                         <h4>
                             <span>Add Order To Drinks Round</span>
+                            <button class="btn btn-primary btn-floating pull-right btn-sm order-table" style="display:none" onclick="confirmOrder({{round_id}})">
+                                <span>Confirm</span>
+                                <i class="fa fa-check"></i>
+                            </button>
+                            <button class="btn btn-floating btn-danger pull-right btn-sm mr-2 order-table" style="display:none" onclick="clearOrders()">
+                                <span>Reset</span>
+                                <i class="fa fa-times"></i>
+                            </button>
                         </h4>
                     </div>
                     <div class="card-body">
-                        <div class="offset-lg-3 col-lg-6">
-                            <button type="button" class="btn btn-floating btn-primary btn-block">
-                                <span>Select People</span>
+                        <div class="offset-lg-3 col-lg-6" id="select-team-member-button">
+                            <button type="button" class="btn btn-floating btn-primary btn-block" data-toggle="modal" data-target="#addOrder">
+                                <span>Select Team Members</span>
                                 <i class="pl-2 fa fa-users"></i>
                             </button>
                         </div>
+                        <table class="table order-table mb-0" style="display:none">
+                            <tbody id="order-body">
+                                <tr style="display:none">
+                                    <td></td>
+                                    <td>
+                                        <select class="form-control">
+                                            {% for drink in drink_options %}
+                                            <option value="{{drink.id}}">{{drink.name}}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
                 {% endif %}
@@ -28,7 +50,7 @@
                         <h4>
                             <span>Latest Drinks Round - </span>{% if data.id %}<span>Brewed By {{data.brewer.name}}</span>{% else %}<span>No Drinks Round Started</span>{% endif %}
                             {% if data.drinks|length > 0 %}
-                            <button type="button" class="btn btn-floating btn-secondary mr-2 pull-right btn-sm" data-toggle="collapse" data-target="#collapse-body,#collapse-button">
+                            <button type="button" class="btn btn-floating btn-secondary mr-2 pull-right btn-sm" data-toggle="collapse" data-target="#collapse-body">
                                 <span>Toggle Team Members</span>
                                 <i class="fa fa-toggle-on"></i>
                             </button>
@@ -48,17 +70,13 @@
                                         <span>Remove Drink</span>
                                         <i class="fa fa-trash"></i>
                                     </button>
-                                    <a class="btn btn-floating btn-danger pull-right disabled btn-sm collapse" id="collapse-button" href="#">
-                                        <span>Remove Team Member</span>
-                                        <i class="fa fa-trash"></i>
-                                    </a>
                                 </h5>
                             </div>
                             <div class="card-body collapse pt-0 pb-0" id="collapse-body">
                                 <table class="table table-hover mb-0 mt-0">
                                     <tbody>
                                         {% for team_member in drink.team_members %}
-                                        <tr class="clickable-row">
+                                        <tr class="clickable-row" data-id="{{team_member.id}}">
                                             <td>{{team_member.name}}</td>
                                         </tr>
                                         {% endfor %}
@@ -103,12 +121,20 @@
                 <i class="fa fa-star"></i>
             </button>
         </li>
-        <li>
-            <button type="button" class="btn btn-floating btn-primary mr-2" style="display:{{show_if_round}}">
+        <li style="display:{{show_if_round}}">
+            <button type="button" class="btn btn-floating btn-primary mr-2 update-round-modal clear-data" data-toggle="modal" data-target="#editRound" data-roundId="{{data.id}}" data-roundBrewer="{{data.brewer.id}}">
                 <span>Change Brewer</span>
                 <i class="fa fa-edit"></i>
             </button>
         </li>
+        {% if data.drinks|length > 0 %}
+        <li>
+            <button class="btn btn-floating btn-danger requires-selection mr-2" disabled onclick="deleteOrderFromRound({{round_id}})">
+                <span>Remove Team Member</span>
+                <i class="fa fa-trash"></i>
+            </button>
+        </li>
+        {% endif %}
         <li class="nav-item" style="display:{{show_if_round}}">
             <button id="deleteRound" class="btn btn-floating btn-danger" onclick="deleteRound({{round_id}})">
                 <span>Delete Round</span>
@@ -127,6 +153,7 @@
             <form id="edit_round" class="needs-validation" method="POST">
                 <input type="hidden" name="id" class="round-id" value="0">
                 <input type="hidden" name="prepopulate" class="prepopulate" value="false">
+                <input type="hidden" name="clear-order" class="clear-order" value="true">
                 <div class="modal-body">
                     <div class="form-group row">
                         <label class="col-lg-3" for="roundBrewer">Brewer</label>
@@ -154,6 +181,45 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addOrder" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-light" style="border-top-left-radius: 3px; border-top-right-radius: 3px;">
+                <h5 class="modal-title">Select Team Members</h5>
+                <input type="text" class="form-control search-team-member pull-right" style="width:200px" name="searchTeamMember" placeholder="Search">
+            </div>
+            <div class="modal-body" style="max-height:60vh; overflow-y: auto;">
+                <table class="table table-hover">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">Name</th>
+                            <th scope="col">Preference</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for team_member in brewer_options %}
+                        <tr class="team-member-item clickable-row-multiple" data-teamMemberName="{{team_member.name}}" data-teamMemberPreference="{{team_member.preference.id}}" data-teamMemberId="{{team_member.id}}">
+                            <td id="item-name">{{team_member.name}}</td>
+                            <td id="item-preference">{{team_member.preference.name}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-floating btn-danger mr-auto close-modal" data-dismiss="modal" onclick="return false;">
+                    <span>Cancel</span>
+                    <i class="fa fa-times"></i>
+                </button>
+                <button class="btn btn-primary btn-floating ml-auto requires-selection-multiple confirm-modal" disabled data-dismiss="modal" onclick="return false;">
+                    <span>Confirm</span>
+                    <i class="fa fa-check"></i>
+                </button>
+            </div>
         </div>
     </div>
 </div>

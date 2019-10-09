@@ -77,17 +77,23 @@ def drink_round_handler():
             team_members = TeamMembers()
             read_team_member(int(request.args["team_id"]), team_members, 0)
             brewer_options = [team_member.to_json() for team_member in team_members.team_members.values()]
-            return render_template("drinks_round.html", round_page="active", data=drinks_round.to_json(), team_id=request.args["team_id"], round_id=drinks_round.id, show_if_round=("" if drinks_round.id else "none"), brewer_options=brewer_options)
+            drinks = Drinks()
+            read_drink(int(request.args["team_id"]), drinks, 0)
+            drink_options = [drink.to_json() for drink in drinks.drinks.values()]
+            return render_template("drinks_round.html", round_page="active", data=drinks_round.to_json(), team_id=request.args["team_id"], round_id=drinks_round.id, show_if_round=("" if drinks_round.id else "none"), brewer_options=brewer_options, drink_options=drink_options)
         elif request.method == "POST":
             round_id = None if request.form["id"] == "None" or int(request.form["id"]) == 0 else int(request.form["id"])
-            new_id = create_round(round_id, int(request.form["roundBrewer"]), int(request.args["team_id"]), 0)
-            if request.form["prepopulate"] == "true":
-                drinks_round = Round()
-                team_members = TeamMembers()
-                read_team_member(int(request.args["team_id"]), team_members, 0)
-                for person in team_members.team_members.values():
-                    drinks_round.add_drink(person.preference, person)
-                update_order_records(drinks_round, new_id)
+            if request.form["clear-order"] == "true":
+                new_id = create_round(round_id, int(request.form["roundBrewer"]), int(request.args["team_id"]), 0)
+                if request.form["prepopulate"] == "true":
+                    drinks_round = Round()
+                    team_members = TeamMembers()
+                    read_team_member(int(request.args["team_id"]), team_members, 0)
+                    for person in team_members.team_members.values():
+                        drinks_round.add_drink(person.preference, person)
+                    update_order_records(drinks_round, new_id)
+            else:
+                update_brewer(round_id, int(request.form["roundBrewer"]))
             return redirect("/drinks-round?team_id=" + str(request.args["team_id"]))
         elif request.method == "DELETE":
             clear_order_records(int(request.args["id"]))
@@ -99,13 +105,14 @@ def drink_round_handler():
 @app.route("/drinks-order", methods=["POST", "DELETE"])
 def drink_order_handler():
     if 'username' in session and teams.current_team_id:
-        # if request.method == "POST":
-        #    drinks_round = Round()
-        #    drinks_round.add_drink(Drink("", int(request.form["drink_id"])), TeamMember("", 0, int(request.form["team_member_id"])))
-        #    update_order_records(drinks_round, int(request.args["team_id"]))
-        #    return request.args
+        if request.method == "POST":
+            add_order(int(request.args["drink_id"]), int(request.args["round_id"]), int(request.args["team_member_id"]))
+            return request.args
         if request.method == "DELETE":
-            delete_orders_for_drink(int(request.args["round_id"]), int(request.args["drink_id"]))
+            if "drink_id" in request.args:
+                delete_orders_for_drink(int(request.args["round_id"]), int(request.args["drink_id"]))
+            elif "team_member_id" in request.args:
+                delete_order_for_team_member(int(request.args["round_id"]), int(request.args["team_member_id"]))
             return request.args
     else:
         return redirect("/login")

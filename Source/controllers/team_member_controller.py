@@ -98,7 +98,7 @@ def update_preference(item_type, team_members, drinks):
         else:
             break
 
-    team_members.get_team_member(int(person)).update_preference(int(drink))
+    team_members.get_team_member(int(person)).update_preference(drinks.get_drink(int(drink)))
     update_team_member(person, None, drink)
     print("  Preference Updated.")
     input("\n  Press Enter To Return To Menu ")

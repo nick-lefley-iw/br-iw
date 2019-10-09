@@ -46,7 +46,7 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-bottom pt-3" style="margin-left:50px; margin-right:50px; border-top-left-radius: 5px; border-top-right-radius: 5px;">
     <ul class="navbar-nav mr-auto">
         <li class="nav-item">
-            <button type="button" class="btn btn-floating btn-primary mr-2" data-toggle="modal" data-target="#editDrink">
+            <button type="button" class="btn btn-floating btn-primary mr-2 add-drink-modal" data-toggle="modal" data-target="#editDrink">
                 <span>Add Drink</span>
                 <i class="fa fa-plus"></i>
             </button>
@@ -70,7 +70,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header bg-dark text-light" style="border-top-left-radius: 3px; border-top-right-radius: 3px;">
-                <h5 class="modal-title">Add Drink</h5>
+                <h5 class="modal-title drink-modal-title">Add Drink</h5>
             </div>
             <form id="edit_drink" class="needs-validation" method="post">
                 <input type="hidden" name="id" class="drink-id" value="0">
