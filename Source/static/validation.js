@@ -1,6 +1,13 @@
 (function() {
     'use strict';
     window.addEventListener('load', function() {
+        Array.prototype.filter.call(document.getElementsByClassName('random'), function(button) {
+            button.addEventListener('click', function() {
+                event.preventDefault();
+                event.stopPropagation();
+            });
+        });
+
         Array.prototype.filter.call(document.getElementsByClassName('needs-validation'), function(form) {
             var validate = function (input) {
                 if (!input.value) {
@@ -188,6 +195,10 @@
                 Array.prototype.filter.call(document.getElementsByClassName('round-id'), function(input) {
                     input.value = button.dataset.roundid;
                 });
+
+                Array.prototype.filter.call(document.getElementsByClassName('round-title'), function(input) {
+                    input.innerText = button.dataset.roundtitle;
+                });
             });
         });
 
@@ -199,6 +210,10 @@
 
                 Array.prototype.filter.call(document.getElementsByClassName('round_brewer'), function(input) {
                     input.value = button.dataset.roundbrewer;
+                });
+
+                Array.prototype.filter.call(document.getElementsByClassName('round-title'), function(input) {
+                    input.innerText = button.dataset.roundtitle;
                 });
             });
         });

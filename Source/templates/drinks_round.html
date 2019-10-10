@@ -23,7 +23,7 @@
                     </div>
                     <div class="card-body">
                         <div class="offset-lg-3 col-lg-6" id="select-team-member-button">
-                            <button type="button" class="btn btn-floating btn-primary btn-block" data-toggle="modal" data-target="#addOrder">
+                            <button type="button" class="btn btn-floating btn-primary btn-block {{open_order_modal}}" data-toggle="modal" data-target="#addOrder">
                                 <span>Select Team Members</span>
                                 <i class="pl-2 fa fa-users"></i>
                             </button>
@@ -108,47 +108,52 @@
 <div style="padding-top: 90px"></div>
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-bottom pt-3" style="margin-left:50px; margin-right:50px; border-top-left-radius: 5px; border-top-right-radius: 5px;">
-    <ul class="navbar-nav mr-auto">
-        <li>
-            <button type="button" class="btn btn-floating btn-primary mr-2 new-round-modal" data-toggle="modal" data-target="#editRound" data-roundId="{{data.id}}">
-                <span>Start New Round</span>
-                <i class="fa fa-play"></i>
-            </button>
-        </li>
-        <li>
-            <button type="button" class="btn btn-floating btn-primary mr-2 new-round-modal prepopulate-data" data-toggle="modal" data-target="#editRound" data-roundId="{{data.id}}">
-                <span>Take Preferred Round</span>
-                <i class="fa fa-star"></i>
-            </button>
-        </li>
-        <li style="display:{{show_if_round}}">
-            <button type="button" class="btn btn-floating btn-primary mr-2 update-round-modal clear-data" data-toggle="modal" data-target="#editRound" data-roundId="{{data.id}}" data-roundBrewer="{{data.brewer.id}}">
-                <span>Change Brewer</span>
-                <i class="fa fa-edit"></i>
-            </button>
-        </li>
-        {% if data.drinks|length > 0 %}
-        <li>
-            <button class="btn btn-floating btn-danger requires-selection mr-2" disabled onclick="deleteOrderFromRound({{round_id}})">
-                <span>Remove Team Member</span>
-                <i class="fa fa-trash"></i>
-            </button>
-        </li>
-        {% endif %}
-        <li class="nav-item" style="display:{{show_if_round}}">
-            <button id="deleteRound" class="btn btn-floating btn-danger" onclick="deleteRound({{round_id}})">
-                <span>Delete Round</span>
-                <i class="fa fa-trash"></i>
-            </button>
-        </li>
-    </ul>
+    <button class="navbar-toggler ml-auto" type="button" data-toggle="collapse" data-target="#toolbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="toolbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li>
+                <button type="button" class="btn btn-floating btn-primary mr-2 new-round-modal {{open_round_modal}}" data-toggle="modal" data-target="#editRound" data-roundId="{{data.id}}" data-roundTitle="Start New Round">
+                    <span>Start New Round</span>
+                    <i class="fa fa-play"></i>
+                </button>
+            </li>
+            <li>
+                <button type="button" class="btn btn-floating btn-primary mr-2 new-round-modal prepopulate-data" data-toggle="modal" data-target="#editRound" data-roundId="{{data.id}}" data-roundTitle="Take Preferred Round">
+                    <span>Take Preferred Round</span>
+                    <i class="fa fa-star"></i>
+                </button>
+            </li>
+            <li style="display:{{show_if_round}}">
+                <button type="button" class="btn btn-floating btn-primary mr-2 update-round-modal clear-data" data-toggle="modal" data-target="#editRound" data-roundId="{{data.id}}" data-roundBrewer="{{data.brewer.id}}" data-roundTitle="Change Brewer">
+                    <span>Change Brewer</span>
+                    <i class="fa fa-edit"></i>
+                </button>
+            </li>
+            {% if data.drinks|length > 0 %}
+            <li>
+                <button class="btn btn-floating btn-danger requires-selection mr-2" disabled onclick="deleteOrderFromRound({{round_id}})">
+                    <span>Remove Team Member</span>
+                    <i class="fa fa-trash"></i>
+                </button>
+            </li>
+            {% endif %}
+            <li class="nav-item" style="display:{{show_if_round}}">
+                <button id="deleteRound" class="btn btn-floating btn-danger" onclick="deleteRound({{round_id}})">
+                    <span>Delete Round</span>
+                    <i class="fa fa-trash"></i>
+                </button>
+            </li>
+        </ul>
+    </div>
 </nav>
 
 <div class="modal fade" id="editRound" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header bg-dark text-light" style="border-top-left-radius: 3px; border-top-right-radius: 3px;">
-                <h5 class="modal-title">Start New Round</h5>
+                <h5 class="modal-title round-title">Start New Round</h5>
             </div>
             <form id="edit_round" class="needs-validation" method="POST">
                 <input type="hidden" name="id" class="round-id" value="0">
@@ -157,13 +162,18 @@
                 <div class="modal-body">
                     <div class="form-group row">
                         <label class="col-lg-3" for="roundBrewer">Brewer</label>
-                        <div class="col-lg-9">
+                        <div class="col-lg-7 pr-0">
                             <select class="form-control required round_brewer" id="roundBrewer" name="roundBrewer">
                                 <option value="" disabled selected>Select Brewer</option>
                                 {% for team_member in brewer_options %}
                                 <option value="{{team_member.id}}">{{team_member.name}}</option>
                                 {% endfor %}
                             </select>
+                        </div>
+                        <div class="col-lg-2 pl-1">
+                            <button class="btn btn-floating btn-secondary random" onclick="randomBrewer()">
+                                <i class="fa fa-random"></i>
+                            </button>
                         </div>
                         <div class="offset-lg-3 col-lg-9 helper" style="display: none">
                             <span class="text-danger">Brewer Required</span>

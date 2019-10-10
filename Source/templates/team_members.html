@@ -46,26 +46,25 @@
 <div style="padding-top: 90px"></div>
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-bottom pt-3" style="margin-left:50px; margin-right:50px; border-top-left-radius: 5px; border-top-right-radius: 5px;">
-    <ul class="navbar-nav mr-auto">
-        <li class="nav-item">
-            <button type="button" class="btn btn-floating add-modal pull-right btn-primary mr-2" data-toggle="modal" data-target="#editTeamMember">
-                <span>Add Team Member</span>
-                <i class="fa fa-plus"></i>
-            </button>
-        </li>
-        <li>
-            <button class="btn btn-floating btn-primary update-modal mr-2 requires-selection" disabled data-toggle="modal" data-target="#editTeamMember">
-                <span>Edit Team Member</span>
-                <i class="fa fa-edit"></i>
-            </button>
-        </li>
-        <li>
-            <a class="btn btn-floating btn-danger disabled requires-selection" href="#">
-                <span>Delete Team Member</span>
-                <i class="fa fa-trash"></i>
-            </a>
-        </li>
-    </ul>
+    <button class="navbar-toggler ml-auto" type="button" data-toggle="collapse" data-target="#toolbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="toolbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <button type="button" class="btn btn-floating add-modal btn-primary mr-2" data-toggle="modal" data-target="#editTeamMember">
+                    <span>Add Team Member</span>
+                    <i class="fa fa-plus"></i>
+                </button>
+            </li>
+            <li>
+                <button class="btn btn-floating btn-primary update-modal mr-2 requires-selection" disabled data-toggle="modal" data-target="#editTeamMember">
+                    <span>Edit Team Member</span>
+                    <i class="fa fa-edit"></i>
+                </button>
+            </li>
+        </ul>
+    </div>
 </nav>
 
 <div class="modal fade" id="editTeamMember" tabindex="-1" role="dialog">

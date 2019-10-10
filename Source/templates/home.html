@@ -2,7 +2,42 @@
 
 {% block content %}
 
-<h1 style="padding-top: 20px; text-align:center"><b>Welcome to BR-IW!</b></h1>
-<img src="../static/icon.png" style="height:25rem; margin-left: auto; margin-right: auto; display:block">
+<div style="padding-top:20px">
+    <div class="col-12">
+        <div class="row">
+            <div class="offset-lg-3 col-lg-6">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h1 style="padding-top: 20px; text-align:center"><b>Welcome to BR-IW</b></h1>
+                        <h4 style="padding-top: 20px; padding-bottom:30px; text-align:center"><b>How Do You Want To Get Started?</b></h4>
+                    </div>
+                    <div class="offset-lg-1 col-lg-4 pt-2">
+                        <a class="btn btn-primary btn-block" href="./drinks-round?team_id={{team_id}}&start_round=true">
+                            <span>Start Drinks Round</span>
+                            <i class="pl-2 fa fa-play"></i>
+                        </a>
+                    </div>
+                    <div class="offset-lg-2 col-lg-4 pt-2">
+                        <a class="btn btn-primary btn-block" href="./drinks-round?team_id={{team_id}}&add_order=true">
+                            <span>Add Order To Drinks Round</span>
+                            <i class="pl-2 fa fa-coffee"></i>
+                        </a>
+                    </div>
+                    <img src="../static/icon.png" style="height:22rem; margin-left: auto; margin-right: auto; display:block; margin-top:40px">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div style="padding-top: 90px"></div>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-bottom pt-3 text-light">
+    <ul class="navbar-nav ml-auto">
+        <li class="nav-item">
+            <span>© NickCorp</span>
+        </li>
+    </ul>
+</nav>
 
 {% endblock %}

@@ -80,7 +80,7 @@ def drink_round_handler():
             drinks = Drinks()
             read_drink(int(request.args["team_id"]), drinks, 0)
             drink_options = [drink.to_json() for drink in drinks.drinks.values()]
-            return render_template("drinks_round.html", round_page="active", data=drinks_round.to_json(), team_id=request.args["team_id"], round_id=drinks_round.id, show_if_round=("" if drinks_round.id else "none"), brewer_options=brewer_options, drink_options=drink_options)
+            return render_template("drinks_round.html", round_page="active", data=drinks_round.to_json(), team_id=request.args["team_id"], round_id=drinks_round.id, show_if_round=("" if drinks_round.id else "none"), brewer_options=brewer_options, drink_options=drink_options, open_order_modal=("open-modal" if "add_order" in request.args else ""), open_round_modal=("open-modal" if "start_round" in request.args else ""))
         elif request.method == "POST":
             round_id = None if request.form["id"] == "None" or int(request.form["id"]) == 0 else int(request.form["id"])
             if request.form["clear-order"] == "true":

@@ -50,3 +50,13 @@ function clearOrders() {
         button.disabled = true
     });
 }
+
+function randomBrewer() {
+    Array.prototype.filter.call(document.getElementsByClassName('round_brewer'), function(element) {
+        var values = []
+        for (i = 1; i < element.options.length; i++) {
+            values.push(element.options[i].value)
+        }
+        element.value = values[Math.floor(Math.random()*values.length)]
+    });
+}
